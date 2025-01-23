@@ -30,3 +30,9 @@ test: bootstrap-tools
 	staticcheck ./...
 
 image: build
+
+.PHONY: components-install
+components-install:
+	$(info If this fails, please run make components-download first. To save bandwidth, we do not run components-download at all times.)
+	kubectl apply -f $(INSTALL_FOLDER_LDAP)/config.yaml
+	kubectl apply -f $(INSTALL_FOLDER_LDAP)/deploy.yaml

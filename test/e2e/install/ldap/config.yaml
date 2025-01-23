@@ -1,0 +1,231 @@
+apiVersion: v1
+data:
+  setup.ldif: |
+    dn: dc=example,dc=org
+    objectClass: top
+    objectClass: domain
+    dc: example
+
+
+    dn: ou=Users,dc=example,dc=org
+    objectClass: organizationalUnit
+    ou: Users
+
+    dn: ou=Groups,dc=example,dc=org
+    objectClass: organizationalUnit
+    ou: groups
+
+    dn: cn=user1,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user1
+    uid: user1
+    sn: One
+    givenName: User
+    userPassword: somepass
+
+    dn: cn=user2,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user2
+    uid: user2
+    givenName: User
+    sn: Two
+    userPassword: somepass
+
+    dn: cn=user3,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user3
+    uid: user3
+    givenName: User
+    sn: Three
+    userPassword: somepass
+
+    dn: cn=user4,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user4
+    uid: user4
+    givenName: User
+    sn: Four
+    userPassword: somepass
+
+    dn: cn=user5,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user5
+    uid: user5
+    givenName: User
+    sn: Five
+    userPassword: somepass
+
+    dn: cn=user6,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user6
+    uid: user6
+    givenName: User
+    sn: Six
+    userPassword: somepass
+
+    dn: cn=user7,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user7
+    uid: user7
+    givenName: User
+    sn: Seven
+    userPassword: somepass
+
+    dn: cn=user8,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user8
+    uid: user8
+    givenName: User
+    sn: Eight
+    userPassword: somepass
+
+    dn: cn=user9,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user9
+    uid: user9
+    givenName: User
+    sn: Nine
+    userPassword: somepass
+
+    dn: cn=user10,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user10
+    uid: user10
+    givenName: User
+    sn: Ten
+    userPassword: somepass
+
+    dn: cn=user11,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user11
+    uid: user11
+    givenName: User
+    sn: Eleven
+    userPassword: somepass
+
+    dn: cn=user12,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user12
+    uid: user12
+    givenName: User
+    sn: Twelve
+    userPassword: somepass
+
+    dn: cn=admin,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: admin
+    uid: admin
+    givenName: Default Hue
+    sn: Admin User
+    userPassword: admin
+
+    dn: cn=user13,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user13
+    uid: user13
+    givenName: CM
+    sn: Bind User
+    userPassword: somepass
+
+    dn: cn=user14,ou=Users,dc=example,dc=org
+    objectClass: top
+    objectClass: person
+    objectClass: organizationalPerson
+    objectClass: inetOrgPerson
+    cn: user14
+    uid: user14
+    givenName: Bind User
+    sn: Hue
+    userPassword: somepass
+
+    dn: cn=allusers,ou=Groups,dc=example,dc=org
+    cn: allusers
+    objectClass: groupOfNames
+    member: cn=user1,ou=Users,dc=example,dc=org
+    member: cn=user2,ou=Users,dc=example,dc=org
+    member: cn=user3,ou=Users,dc=example,dc=org
+    member: cn=user4,ou=Users,dc=example,dc=org
+    member: cn=user5,ou=Users,dc=example,dc=org
+    member: cn=user6,ou=Users,dc=example,dc=org
+    member: cn=user7,ou=Users,dc=example,dc=org
+    member: cn=user8,ou=Users,dc=example,dc=org
+    member: cn=user9,ou=Users,dc=example,dc=org
+    member: cn=user10,ou=Users,dc=example,dc=org
+    member: cn=user11,ou=Users,dc=example,dc=org
+    member: cn=user12,ou=Users,dc=example,dc=org
+    member: cn=user13,ou=Users,dc=example,dc=org
+    member: cn=user14,ou=Users,dc=example,dc=org
+
+    dn: cn=LDAP_GROUP1,ou=Groups,dc=example,dc=org
+    cn: LDAP_GROUP1
+    objectClass: groupOfNames
+    member: cn=user1,ou=Users,dc=example,dc=org
+    member: cn=user3,ou=Users,dc=example,dc=org
+
+    dn: cn=LDAP_GROUP2,ou=Groups,dc=example,dc=org
+    cn: LDAP_GROUP2
+    objectClass: groupOfNames
+    member: cn=user2,ou=Users,dc=example,dc=org
+    member: cn=user7,ou=Users,dc=example,dc=org
+    member: cn=user8,ou=Users,dc=example,dc=org
+
+    dn: cn=LDAP_GROUP3 Group,ou=Groups,dc=example,dc=org
+    cn: LDAP_GROUP3
+    objectClass: groupOfNames
+    member: cn=user3,ou=Users,dc=example,dc=org
+
+    dn: cn=LDAP_GROUP4,ou=Groups,dc=example,dc=org
+    cn: LDAP_GROUP4
+    objectClass: groupOfNames
+    member: cn=user4,ou=Users,dc=example,dc=org
+
+    dn: cn=LDAP_GROUP5,ou=Groups,dc=example,dc=org
+    cn: LDAP_GROUP5
+    objectClass: groupOfNames
+    member: cn=user5,ou=Users,dc=example,dc=org
+kind: ConfigMap
+metadata:
+  name: ldapconf
+
