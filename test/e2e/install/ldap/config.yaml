@@ -2,9 +2,11 @@ apiVersion: v1
 data:
   setup.ldif: |
     dn: dc=example,dc=org
+    dc: test
+    o: Example Inc.
     objectClass: top
-    objectClass: domain
-    dc: example
+    objectClass: dcObject
+    objectClass: organization
 
 
     dn: ou=Users,dc=example,dc=org
