@@ -149,17 +149,6 @@ data:
     sn: Twelve
     userPassword: somepass
 
-    dn: cn=admin,ou=Users,dc=example,dc=org
-    objectClass: top
-    objectClass: person
-    objectClass: organizationalPerson
-    objectClass: inetOrgPerson
-    cn: admin
-    uid: admin
-    givenName: Default Hue
-    sn: Admin User
-    userPassword: admin
-
     dn: cn=user13,ou=Users,dc=example,dc=org
     objectClass: top
     objectClass: person
