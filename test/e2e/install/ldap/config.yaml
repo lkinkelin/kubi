@@ -1,14 +1,31 @@
 apiVersion: v1
 data:
-  setup.ldif: |
+  00-root.ldif: |-
+    # Root creation
     dn: dc=example,dc=org
-    dc: test
-    o: Example Inc.
-    objectClass: top
     objectClass: dcObject
     objectClass: organization
-
-
+    o: Example, Inc
+  01-default-group.ldif: |-
+    dn: cn=myGroup,dc=example,dc=org
+    cn: myGroup
+    gidnumber: 500
+    objectclass: posixGroup
+    objectclass: top
+  02-default-user.ldif: |-
+    dn: cn=Jean Dupond,dc=example,dc=org
+    cn: Jean Dupond
+    gidnumber: 500
+    givenname: Jean
+    homedirectory: /home/users/jdupond
+    objectclass: inetOrgPerson
+    objectclass: posixAccount
+    objectclass: top
+    sn: Dupond
+    uid: jdupond
+    uidnumber: 1000
+    userpassword: {MD5}KOULhzfBhPTq9k7a9XfCGw==
+  03-setup.ldif: |-
     dn: ou=Users,dc=example,dc=org
     objectClass: organizationalUnit
     ou: Users
@@ -22,7 +39,7 @@ data:
     objectClass: person
     objectClass: organizationalPerson
     objectClass: inetOrgPerson
-    cn: user1
+    cn: user1mariole
     uid: user1
     sn: One
     givenName: User
