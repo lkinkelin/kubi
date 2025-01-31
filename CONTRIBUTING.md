@@ -138,6 +138,7 @@ chmod +x install_cfssl.sh
   - Create a secret for the deployment
   ``` 
   kubectl -n kube-system create secret tls kubi --key server-key.pem --cert server.crt
+  #problem here , does not take the temp dir from mktemp
   kubectl -n kube-system create secret generic kubi-encryption-secret --from-file=/tmp/ecdsa-key.pem --from-file=/tmp/ecdsa-public.pem
   kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_passwd='password'
   ```
@@ -172,7 +173,7 @@ chmod +x install_cfssl.sh
 You can execute the following commands to gather all the required secrets then decode and save them
 
   ```
-  kubectl -n kube-system get secrets $(kubectl -n kube-system get sa kubi-user -o "jsonpath={.secrets[0].name}") -o "jsonpath={.data['ca\.crt']}" | base64 -d > / $TEMP_DIR/kubernetes.io/serviceaccount/ca.crt
+  kubectl -n kube-system get secrets $(kubectl -n kube-system get sa kubi-user -o "jsonpath={.secrets[0].name}") -o "jsonpath={.data['ca\.crt']}" | base64 -d > /$TEMP_DIR/kubernetes.io/serviceaccount/ca.crt
   kubectl -n kube-system get secrets $(kubectl -n kube-system get sa kubi-user -o "jsonpath={.secrets[0].name}") -o "jsonpath={.data['token']}" | base64 -d > /$TEMP_DIR/kubernetes.io  /serviceaccount/token
   kubectl -n kube-system get secrets kubi -o "jsonpath={.data['tls\.crt']}" | base64 -d > /$TEMP_DIR/certs/tls.crt
   kubectl -n kube-system get secrets kubi -o "jsonpath={.data['tls\.key']}" | base64 -d > /$TEMP_DIR/certs/tls.key
