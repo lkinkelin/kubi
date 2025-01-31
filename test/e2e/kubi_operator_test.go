@@ -1,18 +1,42 @@
 package e2e
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestMain(m *testing.M) {
-	//FIXTURES (AKA SETUP)
-	print("helloworld")
-	// Calling of subtests by t.Run()
+	//FIXTURES (AKA SETUP) . Kubectl apply of everything should probably be called here .
+	fmt.Sprintf("Executing fixtures")
+
+	t := &testing.T{}
+
+	// Calling other tests
+	TestResourcesAreCreatedWhenADStuffIsPresent(t)
+	TestNetworkPoliciesAreCreatedWhenNetworkPolicyConfigIsPresent(t)
 
 	//CLEANUP (AKA TEARDOWN)
 
 }
 
-func TestProjetResourcesAreCreated(t *testing.T) {
+// Fat test which will check that, when the connected OpenLDAP is populated with appropriate AD Groups and users, the following stuff is created:
+// * Project resources are created
+// * namespace is present
+// * namespace has appropriate labels
+// * service account 'service' is present in namespace
+func TestResourcesAreCreatedWhenADStuffIsPresent(t *testing.T) {
 	//FIXTURES (AKA SETUP)
+	print("other tests")
+
+	// test
+
+	//CLEANUP (AKA TEARDOWN)
+
+}
+
+func TestNetworkPoliciesAreCreatedWhenNetworkPolicyConfigIsPresent(t *testing.T) {
+	//FIXTURES (AKA SETUP)
+	print("other tests")
 
 	// test
 
