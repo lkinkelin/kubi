@@ -22,10 +22,9 @@ import (
 	"os/exec"
 	"testing"
 
+	"github.com/ca-gip/kubi/test/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"my.domain/guestbook/test/utils"
 )
 
 var (
