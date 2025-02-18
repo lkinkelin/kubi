@@ -162,6 +162,28 @@ var _ = Describe("Manager", Ordered, func() {
 			Eventually(verifyKubiUp).Should(Succeed())
 		})
 
+		It("should have created a namespace", func() {
+			By("validating that the test namespace has been created by kubi-operator")
+			verifyTestNamespaceHasBeenCreated := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "get",
+					"ns", "-l", "creator=kubi", "-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+				)
+
+				namespaceOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve namespaces")
+				namespaceNames := utils.GetNonEmptyLines(namespaceOutput)
+				g.Expect(namespaceNames).To(HaveLen(1), "expected 1 Kubi namespace")
+				controllerPodName = namespaceNames[0]
+				g.Expect(controllerPodName).To(Equal("projet-toto-development"))
+
+			}
+			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
+		})
+
 		// +kubebuilder:scaffold:e2e-webhooks-checks
 
 		// TODO: Customize the e2e test suite with scenarios specific to your project.
