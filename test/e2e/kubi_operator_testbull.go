@@ -24,6 +24,12 @@ func TestMain(m *testing.M) {
 // * namespace is present
 // * namespace has appropriate labels
 // * service account 'service' is present in namespace
+// * basic PSA are created
+
+// KUBI WEBHOOK
+// THAT CLOUDOPS HAVE RIGHTS
+// THAT APPOPS HAVE RIGHTS
+// THAT VIEWER HAVE RIGHTS
 func TestResourcesAreCreatedWhenADStuffIsPresent(t *testing.T) {
 	//FIXTURES (AKA SETUP)
 	print("other tests")
