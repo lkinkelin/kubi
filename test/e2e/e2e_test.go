@@ -19,14 +19,17 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/ca-gip/kubi/test/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/client-go/util/jsonpath"
 )
 
 // namespace where the project is deployed in
@@ -129,7 +132,7 @@ var _ = Describe("Manager", Ordered, func() {
 	SetDefaultEventuallyTimeout(2 * time.Minute)
 	SetDefaultEventuallyPollingInterval(time.Second)
 
-	Context("Manager", func() {
+	Context("Kubi operator", func() {
 		It("should run successfully", func() {
 			By("validating that the kubi operator pod is running as expected")
 			verifyKubiUp := func(g Gomega) {
@@ -162,7 +165,50 @@ var _ = Describe("Manager", Ordered, func() {
 			Eventually(verifyKubiUp).Should(Succeed())
 		})
 
-		It("should have created a namespace", func() {
+		It("should have created all appropriate objects (project, namespace, service account, rolebinding, network policies)", func() {
+			By("validating that the kubi project has been created by kubi-operator")
+			verifyTestKubiProjectHasBeenCreated := func(g Gomega) {
+				cmd := exec.Command("kubectl", "get",
+					"projects.cagip.github.com", "-l", "creator=kubi", "-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+				)
+
+				projectsOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve projects")
+				projectNames := utils.GetNonEmptyLines(projectsOutput)
+				g.Expect(projectNames).To(HaveLen(1), "expected 1 Kubi project")
+				controllerPodName = projectNames[0]
+				g.Expect(controllerPodName).To(Equal("projet-toto-development"))
+
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "json")
+				projectOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project in json")
+				//projectOutputJson, err := json.Marshal(projectOutput)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to marshall json output of the kubectl command to json object")
+
+				jp := jsonpath.New("example")
+				err = jp.Parse("{@}")
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				values, err := jp.FindResults(projectOutput)
+				valueStrings := []string{}
+				if len(values) == 0 || len(values[0]) == 0 {
+					valueStrings = append(valueStrings, "<none>")
+				}
+				for arrIx := range values {
+					for valIx := range values[arrIx] {
+						valueStrings = append(valueStrings, fmt.Sprintf("%v", values[arrIx][valIx].Interface()))
+					}
+				}
+				fmt.Printf("hello there")
+				fmt.Printf("%s\n", strings.Join(valueStrings, ","))
+
+			}
+
 			By("validating that the test namespace has been created by kubi-operator")
 			verifyTestNamespaceHasBeenCreated := func(g Gomega) {
 				// Get the name of the kubi pod
@@ -181,6 +227,8 @@ var _ = Describe("Manager", Ordered, func() {
 				g.Expect(controllerPodName).To(Equal("projet-toto-development"))
 
 			}
+
+			Eventually(verifyTestKubiProjectHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
 		})
 
