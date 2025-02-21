@@ -126,7 +126,7 @@ var _ = Describe("Manager", Ordered, func() {
 		// }
 	})
 
-	SetDefaultEventuallyTimeout(2 * time.Minute)
+	SetDefaultEventuallyTimeout(15 * time.Second) // 2 * time.Minute
 	SetDefaultEventuallyPollingInterval(time.Second)
 
 	Context("Kubi operator", func() {
@@ -228,9 +228,72 @@ var _ = Describe("Manager", Ordered, func() {
 				controllerPodName = namespaceNames[0]
 				g.Expect(controllerPodName).To(Equal("projet-toto-development"))
 
+				cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
+				namespaceOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
+				g.Expect(namespaceOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
+
+				cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.environment}")
+				namespaceOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label environment")
+				g.Expect(namespaceOutput).To(Equal("development"), "the label creator is not equal to development")
+
+				// Cannot parse because there are dots in the label
+				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.pod-security.kubernetes.io/audit}")
+				// namespaceOutput, err = utils.Run(cmd)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label pod-security.kubernetes.io/audit")
+				// g.Expect(namespaceOutput).To(Equal("restricted"), "the label pod-security.kubernetes.io/audit is not equal to restricted")
+
+				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.pod-security.kubernetes.io/enforce}")
+				// namespaceOutput, err = utils.Run(cmd)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label pod-security.kubernetes.io/enforce")
+				// g.Expect(namespaceOutput).To(Equal("baseline"), "the label pod-security.kubernetes.io/enforce is not equal to baseline")
+
+				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.pod-security.kubernetes.io/warn}")
+				// namespaceOutput, err = utils.Run(cmd)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label pod-security.kubernetes.io/warn")
+				// g.Expect(namespaceOutput).To(Equal("restricted"), "the label pod-security.kubernetes.io/warn is not equal to restricted")
+
+				cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.quota}")
+				namespaceOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label quota")
+				g.Expect(namespaceOutput).To(Equal("managed"), "the label quota is not equal to managed")
+
+				cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.type}")
+				namespaceOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label type")
+				g.Expect(namespaceOutput).To(Equal("customer"), "the label type is not equal to customer")
+
 			}
+
+			By("validating that the service account has been created by kubi-operator")
+			verifyTestServiceAccountHasBeenCreated := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "get", "sa", "-n", "projet-toto-development", "-l", "creator=kubi",
+					"-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+				)
+
+				saOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve service accounts")
+				saNames := utils.GetNonEmptyLines(saOutput)
+				g.Expect(saNames).To(HaveLen(1), "expected 1 sa created by kubi operator")
+				controllerPodName = saNames[0]
+				g.Expect(controllerPodName).To(Equal("service"))
+
+				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
+				// saOutput, err = utils.Run(cmd)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
+				// g.Expect(saOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
+
+			}
+
 			Eventually(verifyTestKubiProjectHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
+			Eventually(verifyTestServiceAccountHasBeenCreated).Should(Succeed())
+
 		})
 
 		// +kubebuilder:scaffold:e2e-webhooks-checks
