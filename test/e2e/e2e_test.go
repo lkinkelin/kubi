@@ -19,17 +19,14 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/ca-gip/kubi/test/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/client-go/util/jsonpath"
 )
 
 // namespace where the project is deployed in
@@ -182,30 +179,30 @@ var _ = Describe("Manager", Ordered, func() {
 				controllerPodName = projectNames[0]
 				g.Expect(controllerPodName).To(Equal("projet-toto-development"))
 
-				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "json")
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
 				projectOutput, err := utils.Run(cmd)
-				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project in json")
-				//projectOutputJson, err := json.Marshal(projectOutput)
-				g.Expect(err).NotTo(HaveOccurred(), "Failed to marshall json output of the kubectl command to json object")
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project label creator")
+				// projectOutputJson, err := json.Marshal(projectOutput)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to marshall in json")
+				// jp := jsonpath.New("example")
+				// err = jp.Parse("{@}")
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to configure the json path")
 
-				jp := jsonpath.New("example")
-				err = jp.Parse("{@}")
-				if err != nil {
-					log.Fatal(err)
-				}
+				// creatorLabel, err := jp.FindResults(projectOutput)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to query the json path")
+				g.Expect(projectOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
 
-				values, err := jp.FindResults(projectOutput)
-				valueStrings := []string{}
-				if len(values) == 0 || len(values[0]) == 0 {
-					valueStrings = append(valueStrings, "<none>")
-				}
-				for arrIx := range values {
-					for valIx := range values[arrIx] {
-						valueStrings = append(valueStrings, fmt.Sprintf("%v", values[arrIx][valIx].Interface()))
-					}
-				}
-				fmt.Printf("hello there")
-				fmt.Printf("%s\n", strings.Join(valueStrings, ","))
+				// TO DEBUG what was stored in jsonpath query
+				// valueStrings := []string{}
+				// if len(values) == 0 || len(values[0]) == 0 {
+				// 	valueStrings = append(valueStrings, "<none>")
+				// }
+				// for arrIx := range values {
+				// 	for valIx := range values[arrIx] {
+				// 		valueStrings = append(valueStrings, fmt.Sprintf("%v", values[arrIx][valIx].Interface()))
+				// 	}
+				// }
+				// fmt.Printf("%s\n", strings.Join(valueStrings, ","))
 
 			}
 
