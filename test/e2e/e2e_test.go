@@ -182,27 +182,32 @@ var _ = Describe("Manager", Ordered, func() {
 				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
 				projectOutput, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project label creator")
-				// projectOutputJson, err := json.Marshal(projectOutput)
-				// g.Expect(err).NotTo(HaveOccurred(), "Failed to marshall in json")
-				// jp := jsonpath.New("example")
-				// err = jp.Parse("{@}")
-				// g.Expect(err).NotTo(HaveOccurred(), "Failed to configure the json path")
-
-				// creatorLabel, err := jp.FindResults(projectOutput)
-				// g.Expect(err).NotTo(HaveOccurred(), "Failed to query the json path")
 				g.Expect(projectOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
 
-				// TO DEBUG what was stored in jsonpath query
-				// valueStrings := []string{}
-				// if len(values) == 0 || len(values[0]) == 0 {
-				// 	valueStrings = append(valueStrings, "<none>")
-				// }
-				// for arrIx := range values {
-				// 	for valIx := range values[arrIx] {
-				// 		valueStrings = append(valueStrings, fmt.Sprintf("%v", values[arrIx][valIx].Interface()))
-				// 	}
-				// }
-				// fmt.Printf("%s\n", strings.Join(valueStrings, ","))
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.spec.environment}")
+				projectOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project spec environment")
+				g.Expect(projectOutput).To(Equal("development"), "the spec environment is not equal to development")
+
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.spec.project}")
+				projectOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project spec project")
+				g.Expect(projectOutput).To(Equal("projet-toto"), "the spec project is not equal to projet-toto")
+
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.spec.sourceEntity}")
+				projectOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project spec sourceEntity")
+				g.Expect(projectOutput).To(Equal("DL_KUB_CAGIPHP_PROJET-TOTO-DEV_ADMIN"), "the spec sourceEntity is not equal to DL_KUB_CAGIPHP_PROJET-TOTO-DEV_ADMIN")
+
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.spec.stages}")
+				projectOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project spec stages")
+				g.Expect(projectOutput).To(Equal("[\"scratch\",\"staging\",\"stable\"]"), "the spec stages is not equal to [\"scratch\",\"staging\",\"stable\"] ")
+
+				cmd = exec.Command("kubectl", "get", "projects.cagip.github.com", "projet-toto-development", "-o", "jsonpath={.spec.tenant}")
+				projectOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get project spec sourceEntity")
+				g.Expect(projectOutput).To(Equal("cagip"), "the spec sourceEntity is not equal to cagip")
 
 			}
 
@@ -224,7 +229,6 @@ var _ = Describe("Manager", Ordered, func() {
 				g.Expect(controllerPodName).To(Equal("projet-toto-development"))
 
 			}
-
 			Eventually(verifyTestKubiProjectHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
 		})
