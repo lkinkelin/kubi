@@ -1,30 +1,31 @@
 #!/bin/bash
 # KIND CLUSTER CREATION
 kind delete cluster --name test-e2e-kubi
-kind create cluster --name test-e2e-kubi --config test/e2e/kind/cluster-kind.yaml
+kind create cluster --name test-e2e-kubi --config test/e2e/conf/kind/cluster-kind.yaml
 
+DOCKER_REGISTRY=docker-remote.registry.saas.cagip.group.gca
 
 # PULL AND KIND LOAD IMAGES 
-docker pull docker.io/jpgouin/openldap:2.6.8-fix
-docker pull docker.io/debian:latest
-docker pull docker.io/alpine/openssl:latest
-docker pull docker.io/tiredofit/self-service-password:5.2.3
-docker pull docker.io/osixia/phpldapadmin:0.9.0
-docker pull docker.io/cagip/kubi-operator:v1.30.0-beta1
+docker pull $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix
+docker pull $DOCKER_REGISTRY/debian:latest
+docker pull $DOCKER_REGISTRY/alpine/openssl:latest
+docker pull $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3
+docker pull $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0
+docker pull $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1
 
 
-kind load docker-image docker.io/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
-kind load docker-image docker.io/debian:latest --name test-e2e-kubi
-kind load docker-image docker.io/alpine/openssl:latest --name test-e2e-kubi
-kind load docker-image docker.io/tiredofit/self-service-password:5.2.3 --name test-e2e-kubi
-kind load docker-image docker.io/osixia/phpldapadmin:0.9.0 --name test-e2e-kubi
-kind load docker-image docker.io/cagip/kubi-operator:v1.30.0-beta1 --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/debian:latest --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/alpine/openssl:latest --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3 --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0 --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1 --name test-e2e-kubi
 
 # OPENLDAP DEPLOY 
 # Create configmap containing ldif file
-kubectl -n kube-system apply -f test/e2e/install/ldap/config.yaml
+kubectl -n kube-system apply -f test/e2e/conf/ldap/config.yaml
 helm repo add helm-openldap https://jp-gouin.github.io/helm-openldap/
-helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/install/ldap/myvalues.yaml --namespace kube-system
+helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/conf/ldap/myvalues.yaml --namespace kube-system
 
 # CHECK THAT OPENLDAP IS DEPLOYED AND HAS GOOD CONF
 # VERIFIER 
@@ -86,11 +87,11 @@ kubectl certificate approve kubi-svc.kube-system
 kubectl get csr kubi-svc.kube-system -o jsonpath='{.status.certificate}' | base64 --decode > server.crt
 kubectl -n kube-system create secret tls kubi   --key server-key.pem   --cert server.crt
 #create le cm kubi-config avec toutes les infos sur l'AD 
-kubectl apply -f test/e2e/install/kubi/configmap.yaml
-kubectl apply -f test/e2e/install/kubi/kube-crds.yml
-kubectl apply -f test/e2e/install/kubi/kube-prerequisites.yml
-kubectl apply -f test/e2e/install/kubi/black-white-list-cm.yaml
-kubectl apply -f test/e2e/install/kubi/kubi-operator-deployment.yaml
+kubectl apply -f test/e2e/conf/kubi/configmap.yaml
+kubectl apply -f test/e2e/conf/kubi/kube-crds.yml
+kubectl apply -f test/e2e/conf/kubi/kube-prerequisites.yml
+kubectl apply -f test/e2e/conf/kubi/black-white-list-cm.yaml
+kubectl apply -f test/e2e/conf/kubi/kubi-operator-deployment.yaml
 
 ORG=ca-gip goreleaser release --clean --snapshot
 kind load docker-image ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi

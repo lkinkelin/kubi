@@ -34,13 +34,13 @@ image: build
 
 .PHONY: install-ldap
 install-ldap:
-	kubectl apply -f test/e2e/install/ldap/config.yaml
+	kubectl apply -f test/e2e/conf/ldap/config.yaml
 	helm repo add helm-openldap https://jp-gouin.github.io/helm-openldap/
-	helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/install/ldap/myvalues.yaml
+	helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/conf/ldap/myvalues.yaml
 
 .PHONY: uninstall-ldap
 uninstall-ldap:
-	kubectl delete -f test/e2e/install/ldap/config.yaml
+	kubectl delete -f test/e2e/conf/ldap/config.yaml
 	helm uninstall openldap
 
 .PHONY: setup-kind
