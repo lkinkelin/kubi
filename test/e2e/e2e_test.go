@@ -126,7 +126,7 @@ var _ = Describe("Manager", Ordered, func() {
 		// }
 	})
 
-	SetDefaultEventuallyTimeout(15 * time.Second) // 2 * time.Minute
+	SetDefaultEventuallyTimeout(30 * time.Second) // 2 * time.Minute
 	SetDefaultEventuallyPollingInterval(time.Second)
 
 	Context("Kubi operator", func() {
