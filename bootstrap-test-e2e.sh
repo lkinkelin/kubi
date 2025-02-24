@@ -5,20 +5,20 @@ kind create cluster --name test-e2e-kubi --config test/e2e/kind/cluster-kind.yam
 
 
 # PULL AND KIND LOAD IMAGES 
-docker pull docker-remote.registry.saas.cagip.group.gca/jpgouin/openldap:2.6.8-fix
-docker pull docker-remote.registry.saas.cagip.group.gca/debian:latest
-docker pull docker-remote.registry.saas.cagip.group.gca/alpine/openssl:latest
-docker pull docker-remote.registry.saas.cagip.group.gca/tiredofit/self-service-password:5.2.3
-docker pull docker-remote.registry.saas.cagip.group.gca/osixia/phpldapadmin:0.9.0
-docker pull docker-remote.registry.saas.cagip.group.gca/cagip/kubi-operator:v1.30.0-beta1
+docker pull docker.io/jpgouin/openldap:2.6.8-fix
+docker pull docker.io/debian:latest
+docker pull docker.io/alpine/openssl:latest
+docker pull docker.io/tiredofit/self-service-password:5.2.3
+docker pull docker.io/osixia/phpldapadmin:0.9.0
+docker pull docker.io/cagip/kubi-operator:v1.30.0-beta1
 
 
-kind load docker-image docker-remote.registry.saas.cagip.group.gca/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
-kind load docker-image docker-remote.registry.saas.cagip.group.gca/debian:latest --name test-e2e-kubi
-kind load docker-image docker-remote.registry.saas.cagip.group.gca/alpine/openssl:latest --name test-e2e-kubi
-kind load docker-image docker-remote.registry.saas.cagip.group.gca/tiredofit/self-service-password:5.2.3 --name test-e2e-kubi
-kind load docker-image docker-remote.registry.saas.cagip.group.gca/osixia/phpldapadmin:0.9.0 --name test-e2e-kubi
-kind load docker-image docker-remote.registry.saas.cagip.group.gca/cagip/kubi-operator:v1.30.0-beta1 --name test-e2e-kubi
+kind load docker-image docker.io/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
+kind load docker-image docker.io/debian:latest --name test-e2e-kubi
+kind load docker-image docker.io/alpine/openssl:latest --name test-e2e-kubi
+kind load docker-image docker.io/tiredofit/self-service-password:5.2.3 --name test-e2e-kubi
+kind load docker-image docker.io/osixia/phpldapadmin:0.9.0 --name test-e2e-kubi
+kind load docker-image docker.io/cagip/kubi-operator:v1.30.0-beta1 --name test-e2e-kubi
 
 # OPENLDAP DEPLOY 
 # Create configmap containing ldif file
