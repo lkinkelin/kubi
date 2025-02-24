@@ -26,6 +26,8 @@ kind load docker-image $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1 --name
 kubectl -n kube-system apply -f test/e2e/conf/ldap/config.yaml
 helm repo add helm-openldap https://jp-gouin.github.io/helm-openldap/
 helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/conf/ldap/myvalues.yaml --namespace kube-system
+# We wait 30s for Openldap to pop otherwise, Kubi tries to connect to it directly, fails to open a connection and waits for a new reconciliation loop to occur, which makes the fail test, due to 30s timeout (in e2e_test.go file.)
+sleep 30
 
 # CHECK THAT OPENLDAP IS DEPLOYED AND HAS GOOD CONF
 # VERIFIER 
