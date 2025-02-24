@@ -18,8 +18,10 @@ package e2e
 
 import (
 	"fmt"
+	"os/exec"
 	"testing"
 
+	"github.com/ca-gip/kubi/test/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -53,6 +55,14 @@ func TestE2E(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+
+	By("Setting up E2E test environment and fixtures")
+	_ = utils.UncommentCode("config/default/kustomization.yaml", "#- ../prometheus", "#")
+
+	cmd := exec.Command("./test/e2e/bootstrap-test-e2e.sh")
+	_, err := utils.Run(cmd)
+	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
+
 	// By("Ensure that Prometheus is enabled")
 	// _ = utils.UncommentCode("config/default/kustomization.yaml", "#- ../prometheus", "#")
 
