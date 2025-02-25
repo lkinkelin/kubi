@@ -94,6 +94,7 @@ kubectl apply -f test/e2e/conf/kubi/kube-crds.yml
 kubectl apply -f test/e2e/conf/kubi/kube-prerequisites.yml
 kubectl apply -f test/e2e/conf/kubi/black-white-list-cm.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-operator-deployment.yaml
+kubectl apply -f test/e2e/conf/kubi/rbac.yaml
 
 ORG=ca-gip goreleaser release --clean --snapshot
 kind load docker-image ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi
