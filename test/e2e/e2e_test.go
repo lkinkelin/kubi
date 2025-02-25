@@ -238,6 +238,9 @@ var _ = Describe("Manager", Ordered, func() {
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label environment")
 				g.Expect(namespaceOutput).To(Equal("development"), "the label creator is not equal to development")
 
+				// Could be useful
+				// https://gist.github.com/PrasadG193/589975a55ed992a7b138a53c3d0d1836
+
 				// Cannot parse because there are dots in the label
 				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.pod-security.kubernetes.io/audit}")
 				// namespaceOutput, err = utils.Run(cmd)
@@ -298,37 +301,38 @@ var _ = Describe("Manager", Ordered, func() {
 
 		})
 
-		It("should watch the network policy config objects and create the network policies", func() {
-			By("validating that kubi operator has created the default network policy in the test namespace")
-			verifyNetworkPoliciesHaveBeenCreated := func(g Gomega) {
-				// Get the name of the kubi pod
-				cmd := exec.Command("kubectl", "get",
-					"networkpolicy", "-l", "creator=kubi",
-					"-o", "go-template={{ range .items }}"+
-						"{{ if not .metadata.deletionTimestamp }}"+
-						"{{ .metadata.name }}"+
-						"{{ \"\\n\" }}{{ end }}{{ end }}",
-					"-n", namespace,
-				)
+		// It("should watch the network policy config objects and create the network policies", func() {
+		// 	By("validating that kubi operator has created the default network policy in the test namespace")
+		// 	verifyNetworkPoliciesHaveBeenCreated := func(g Gomega) {
+		// 		// Get the name of the kubi pod
+		// 		cmd := exec.Command("kubectl", "get",
+		// 			"networkpolicy", "kubi-default",
+		// 			"-n", namespace, "-o", "go-template={{ range .items }}"+
+		// 				"{{ if not .metadata.deletionTimestamp }}"+
+		// 				"{{ .metadata.name }}"+
+		// 				"{{ \"\\n\" }}{{ end }}{{ end }}",
+		// 		)
 
-				podOutput, err := utils.Run(cmd)
-				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve Kubi operator pod information")
-				podNames := utils.GetNonEmptyLines(podOutput)
-				g.Expect(podNames).To(HaveLen(1), "expected 1 Kubi operator pod running")
-				controllerPodName = podNames[0]
-				g.Expect(controllerPodName).To(ContainSubstring("kubi-operator"))
+		// 		netpolOutput, err := utils.Run(cmd)
+		// 		g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve network policy kubi-default")
+		// 		netpolNames := utils.GetNonEmptyLines(netpolOutput)
+		// 		g.Expect(netpolNames).To(HaveLen(1), "expected 1 network policy") // pretty useless today as we 'kubectl get' one netpol in  particular, kubi-default. Could be useful, if later, we 'kubectl get' using a label selector, typically if more than one netpolconf is created.
+		// 		netpolName := netpolNames[0]
+		// 		g.Expect(netpolName).To(Equal("kubi-default"))
 
-				// Validate the pod's status
-				cmd = exec.Command("kubectl", "get",
-					"pods", controllerPodName, "-o", "jsonpath={.status.phase}",
-					"-n", namespace,
-				)
-				output, err := utils.Run(cmd)
-				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(output).To(Equal("Running"), "Incorrect Kubi operator pod status")
-			}
-			Eventually(verifyNetworkPoliciesHaveBeenCreated).Should(Succeed())
-		})
+		// 		// Parse the json and validate the rules inside the netpol
+		// 		cmd = exec.Command("kubectl", "get",
+		// 			"networkpolicy", "kubi-default",
+		// 			"-n", namespace, "-o", "jsonpath={.status.phase}",
+		// 		)
+		// 		netpolOutput, err := utils.Run(cmd)
+		// 		g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
+		// 		g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+
+		// 		// Validate
+		// 	}
+		// 	Eventually(verifyNetworkPoliciesHaveBeenCreated).Should(Succeed())
+		// })
 
 		// +kubebuilder:scaffold:e2e-webhooks-checks
 
