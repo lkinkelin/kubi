@@ -298,6 +298,38 @@ var _ = Describe("Manager", Ordered, func() {
 
 		})
 
+		It("should watch the network policy config objects and create the network policies", func() {
+			By("validating that kubi operator has created the default network policy in the test namespace")
+			verifyNetworkPoliciesHaveBeenCreated := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "get",
+					"networkpolicy", "-l", "creator=kubi",
+					"-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+					"-n", namespace,
+				)
+
+				podOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve Kubi operator pod information")
+				podNames := utils.GetNonEmptyLines(podOutput)
+				g.Expect(podNames).To(HaveLen(1), "expected 1 Kubi operator pod running")
+				controllerPodName = podNames[0]
+				g.Expect(controllerPodName).To(ContainSubstring("kubi-operator"))
+
+				// Validate the pod's status
+				cmd = exec.Command("kubectl", "get",
+					"pods", controllerPodName, "-o", "jsonpath={.status.phase}",
+					"-n", namespace,
+				)
+				output, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(output).To(Equal("Running"), "Incorrect Kubi operator pod status")
+			}
+			Eventually(verifyNetworkPoliciesHaveBeenCreated).Should(Succeed())
+		})
+
 		// +kubebuilder:scaffold:e2e-webhooks-checks
 
 		// TODO: Customize the e2e test suite with scenarios specific to your project.
