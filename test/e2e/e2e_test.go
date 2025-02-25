@@ -293,6 +293,8 @@ var _ = Describe("Manager", Ordered, func() {
 			Eventually(verifyTestKubiProjectHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestServiceAccountHasBeenCreated).Should(Succeed())
+			// Eventually(verifyTestRoleBindingHaveBeenCreated).Should(Succeed())
+			// Eventually(verifyTestNetPolsHaveBeenCreated).Should(Succeed())
 
 		})
 
