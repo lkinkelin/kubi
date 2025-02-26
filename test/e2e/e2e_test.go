@@ -297,42 +297,63 @@ var _ = Describe("Manager", Ordered, func() {
 			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestServiceAccountHasBeenCreated).Should(Succeed())
 			// Eventually(verifyTestRoleBindingHaveBeenCreated).Should(Succeed())
-			// Eventually(verifyTestNetPolsHaveBeenCreated).Should(Succeed())
 
 		})
 
-		// It("should watch the network policy config objects and create the network policies", func() {
-		// 	By("validating that kubi operator has created the default network policy in the test namespace")
-		// 	verifyNetworkPoliciesHaveBeenCreated := func(g Gomega) {
-		// 		// Get the name of the kubi pod
-		// 		cmd := exec.Command("kubectl", "get",
-		// 			"networkpolicy", "kubi-default",
-		// 			"-n", namespace, "-o", "go-template={{ range .items }}"+
-		// 				"{{ if not .metadata.deletionTimestamp }}"+
-		// 				"{{ .metadata.name }}"+
-		// 				"{{ \"\\n\" }}{{ end }}{{ end }}",
-		// 		)
+		It("should watch the network policy config objects and create the network policies", func() {
+			By("validating that kubi operator has created the default network policy in the test namespace")
+			verifyNetworkPoliciesHaveBeenCreated := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "get",
+					"networkpolicy", "kubi-default",
+					"-n", "projet-toto-development", "-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+				)
 
-		// 		netpolOutput, err := utils.Run(cmd)
-		// 		g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve network policy kubi-default")
-		// 		netpolNames := utils.GetNonEmptyLines(netpolOutput)
-		// 		g.Expect(netpolNames).To(HaveLen(1), "expected 1 network policy") // pretty useless today as we 'kubectl get' one netpol in  particular, kubi-default. Could be useful, if later, we 'kubectl get' using a label selector, typically if more than one netpolconf is created.
-		// 		netpolName := netpolNames[0]
-		// 		g.Expect(netpolName).To(Equal("kubi-default"))
+				netpolOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve network policy kubi-default")
+				netpolNames := utils.GetNonEmptyLines(netpolOutput)
+				g.Expect(netpolNames).To(HaveLen(1), "expected 1 network policy") // pretty useless today as we 'kubectl get' one netpol in  particular, kubi-default. Could be useful, if later, we 'kubectl get' using a label selector, typically if more than one netpolconf is created.
+				netpolName := netpolNames[0]
+				g.Expect(netpolName).To(Equal("kubi-default"))
 
-		// 		// Parse the json and validate the rules inside the netpol
-		// 		cmd = exec.Command("kubectl", "get",
-		// 			"networkpolicy", "kubi-default",
-		// 			"-n", namespace, "-o", "jsonpath={.status.phase}",
-		// 		)
-		// 		netpolOutput, err := utils.Run(cmd)
-		// 		g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
-		// 		g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+				// Parse the json and validate the rules inside the netpol
+				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
+					namespace, "-o", "jsonpath={.spec.egress}",
+				)
+				netpolOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol spec egress")
+				//	expectedJsonBlock := '[{"ports":[{"port":636,"protocol":"UDP"},{"port":636,"protocol":"TCP"},{"port":389,"protocol":"UDP"},{"port":389,"protocol":"TCP"},{"port":123,"protocol":"UDP"},{"port":123,"protocol":"TCP"},{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"},{"port":53,"protocol":"UDP"}]},{"to":[{"podSelector":{}},{"namespaceSelector":{"matchLabels":{"name":"kube-system"}},"podSelector":{"matchLabels":{"component":"kube-apiserver","tier":"control-plane"}}},{"ipBlock":{"cidr":"172.20.0.0/16"}}]}]'
+				g.Expect(netpolOutput).To(Equal("[{\"ports\":[{\"port\":636,\"protocol\":\"UDP\"},{\"port\":636,\"protocol\":\"TCP\"},{\"port\":389,\"protocol\":\"UDP\"},{\"port\":389,\"protocol\":\"TCP\"},{\"port\":123,\"protocol\":\"UDP\"},{\"port\":123,\"protocol\":\"TCP\"},{\"port\":53,\"protocol\":\"UDP\"},{\"port\":53,\"protocol\":\"TCP\"},{\"port\":53,\"protocol\":\"UDP\"}]},{\"to\":[{\"podSelector\":{}},{\"namespaceSelector\":{\"matchLabels\":{\"name\":\"kube-system\"}},\"podSelector\":{\"matchLabels\":{\"component\":\"kube-apiserver\",\"tier\":\"control-plane\"}}},{\"ipBlock\":{\"cidr\":\"172.20.0.0/16\"}}]}]"), "the spec egress of the network policy is not equal to what was requested in NetworkPolicyConfig object")
 
-		// 		// Validate
-		// 	}
-		// 	Eventually(verifyNetworkPoliciesHaveBeenCreated).Should(Succeed())
-		// })
+				// Parse the json and validate the rules inside the netpol
+				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
+					namespace, "-o", "jsonpath={.spec.ingress}",
+				)
+				netpolOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
+				g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+
+				// Parse the json and validate the rules inside the netpol
+				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
+					namespace, "-o", "jsonpath={.spec.podSelector}",
+				)
+				netpolOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
+				g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+
+				// Parse the json and validate the rules inside the netpol
+				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
+					namespace, "-o", "jsonpath.spec.policyTypes}",
+				)
+				netpolOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
+				g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+			}
+			Eventually(verifyNetworkPoliciesHaveBeenCreated).Should(Succeed())
+		})
 
 		// +kubebuilder:scaffold:e2e-webhooks-checks
 
