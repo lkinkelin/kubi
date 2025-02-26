@@ -304,12 +304,21 @@ var _ = Describe("Manager", Ordered, func() {
 			By("validating that kubi operator has created the default network policy in the test namespace")
 			verifyNetworkPoliciesHaveBeenCreated := func(g Gomega) {
 				// Get the name of the kubi pod
+
+				// "kubectl", "get",
+				// 	"pods", "-l", "app=kubi-operator",
+				// 	"-o", "go-template={{ range .items }}"+
+				// 		"{{ if not .metadata.deletionTimestamp }}"+
+				// 		"{{ .metadata.name }}"+
+				// 		"{{ \"\\n\" }}{{ end }}{{ end }}",
+				// 	"-n", namespace,
+
 				cmd := exec.Command("kubectl", "get",
 					"networkpolicy", "kubi-default",
-					"-n", "projet-toto-development", "-o", "go-template={{ range .items }}"+
+					"-n", "projet-toto-development", "-o", "go-template="+
 						"{{ if not .metadata.deletionTimestamp }}"+
 						"{{ .metadata.name }}"+
-						"{{ \"\\n\" }}{{ end }}{{ end }}",
+						"{{ \"\\n\" }}{{ end }}",
 				)
 
 				netpolOutput, err := utils.Run(cmd)
@@ -321,7 +330,7 @@ var _ = Describe("Manager", Ordered, func() {
 
 				// Parse the json and validate the rules inside the netpol
 				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
-					namespace, "-o", "jsonpath={.spec.egress}",
+					"projet-toto-development", "-o", "jsonpath={.spec.egress}",
 				)
 				netpolOutput, err = utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol spec egress")
@@ -330,27 +339,27 @@ var _ = Describe("Manager", Ordered, func() {
 
 				// Parse the json and validate the rules inside the netpol
 				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
-					namespace, "-o", "jsonpath={.spec.ingress}",
+					"projet-toto-development", "-o", "jsonpath={.spec.ingress}",
 				)
 				netpolOutput, err = utils.Run(cmd)
-				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
-				g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol spec ingress")
+				g.Expect(netpolOutput).To(Equal("[{\"from\":[{\"podSelector\":{}},{\"namespaceSelector\":{\"matchLabels\":{\"name\":\"ingress-nginx\"}},\"podSelector\":{}},{\"namespaceSelector\":{\"matchLabels\":{\"name\":\"monitoring\"}},\"podSelector\":{}}]}]"), "the netpol spec ingress is not equal to what was configured in the networkPolicyConfig object")
 
 				// Parse the json and validate the rules inside the netpol
 				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
-					namespace, "-o", "jsonpath={.spec.podSelector}",
+					"projet-toto-development", "-o", "jsonpath={.spec.podSelector}",
 				)
 				netpolOutput, err = utils.Run(cmd)
-				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
-				g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol spec podSelector")
+				g.Expect(netpolOutput).To(Equal("{}"), "the netpol spec podSelector is not equal to what was configured in the networkPolicyConfig object")
 
 				// Parse the json and validate the rules inside the netpol
 				cmd = exec.Command("kubectl", "get", "networkpolicy", "kubi-default", "-n",
-					namespace, "-o", "jsonpath.spec.policyTypes}",
+					"projet-toto-development", "-o", "jsonpath={.spec.policyTypes}",
 				)
 				netpolOutput, err = utils.Run(cmd)
-				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol blabla")
-				g.Expect(netpolOutput).To(Equal("kubi"), "the blabla is not equal to blabla")
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get netpol spec policyTypes")
+				g.Expect(netpolOutput).To(Equal("[\"Ingress\",\"Egress\"]"), "the netpol spec policyTypes is not equal to what was configured in the networkPolicyConfig object")
 			}
 			Eventually(verifyNetworkPoliciesHaveBeenCreated).Should(Succeed())
 		})
