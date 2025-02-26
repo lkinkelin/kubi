@@ -293,10 +293,34 @@ var _ = Describe("Manager", Ordered, func() {
 
 			}
 
+			By("validating that the rolebindings have been created by kubi-operator")
+			verifyTestRolebindingsHaveBeenCreated := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development", "-l", "creator=kubi",
+					"-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+				)
+
+				rbOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve role bindings")
+				saNames := utils.GetNonEmptyLines(rbOutput)
+				g.Expect(saNames).To(HaveLen(4), "expected 4 rolebindings created by kubi operator")
+				// controllerPodName = saNames[0]
+				// g.Expect(controllerPodName).To(Equal("service"))
+
+				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
+				// saOutput, err = utils.Run(cmd)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
+				// g.Expect(saOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
+
+			}
+
 			Eventually(verifyTestKubiProjectHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestNamespaceHasBeenCreated).Should(Succeed())
 			Eventually(verifyTestServiceAccountHasBeenCreated).Should(Succeed())
-			// Eventually(verifyTestRoleBindingHaveBeenCreated).Should(Succeed())
+			Eventually(verifyTestRolebindingsHaveBeenCreated).Should(Succeed())
 
 		})
 
