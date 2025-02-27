@@ -302,18 +302,67 @@ var _ = Describe("Manager", Ordered, func() {
 						"{{ .metadata.name }}"+
 						"{{ \"\\n\" }}{{ end }}{{ end }}",
 				)
-
 				rbOutput, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve role bindings")
-				saNames := utils.GetNonEmptyLines(rbOutput)
-				g.Expect(saNames).To(HaveLen(4), "expected 4 rolebindings created by kubi operator")
-				// controllerPodName = saNames[0]
-				// g.Expect(controllerPodName).To(Equal("service"))
+				rbNames := utils.GetNonEmptyLines(rbOutput)
+				g.Expect(rbNames).To(HaveLen(4), "expected 4 rolebindings created by kubi operator")
+				g.Expect(rbNames).To(ContainElements("default-sa", "namespaced-admin", "namespaced-service-binding", "view"), "expected rolebindings default-sa, namespaced-admin, namespaced-service-binding and view")
 
-				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
-				// saOutput, err = utils.Run(cmd)
-				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
-				// g.Expect(saOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"default-sa", "-o", "jsonpath={.roleRef}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding default-sa roleRef")
+				g.Expect(rbOutput).To(Equal("{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"pod-reader\"}"), "expected")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"default-sa", "-o", "jsonpath={.subjects}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding default-sa subjects")
+				g.Expect(rbOutput).To(Equal("[{\"kind\":\"ServiceAccount\",\"name\":\"default\",\"namespace\":\"projet-toto-development\"}]"), "expected")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"namespaced-admin", "-o", "jsonpath={.roleRef}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding namespaced-admin roleRef")
+				g.Expect(rbOutput).To(Equal("{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"namespaced-admin\"}"), "expected")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"namespaced-admin", "-o", "jsonpath={.subjects}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding namespaced-admin subjects")
+				g.Expect(rbOutput).To(Equal("[{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"Group\",\"name\":\"projet-toto-development-admin\"},{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"Group\",\"name\":\"application:masters\"},{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"Group\",\"name\":\"ops:masters\"}]"), "ecpe")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"namespaced-service-binding", "-o", "jsonpath={.roleRef}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding namespaced-service-binding roleRef")
+				g.Expect(rbOutput).To(Equal("{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"namespaced-service\"}"), "ecp")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"namespaced-service-binding", "-o", "jsonpath={.subjects}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding namespaced-service-binding subjects")
+				g.Expect(rbOutput).To(Equal("[{\"kind\":\"ServiceAccount\",\"name\":\"service\",\"namespace\":\"projet-toto-development\"}]"), "ex")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"view", "-o", "jsonpath={.roleRef}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding view roleRef")
+				g.Expect(rbOutput).To(Equal("{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"view\"}"), "")
+
+				cmd = exec.Command("kubectl", "get", "rolebinding", "-n", "projet-toto-development",
+					"view", "-o", "jsonpath={.subjects}",
+				)
+				rbOutput, err = utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to get role binding view subjects")
+				g.Expect(rbOutput).To(Equal("[{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"Group\",\"name\":\"application:view\"}]"), ")")
 
 			}
 
