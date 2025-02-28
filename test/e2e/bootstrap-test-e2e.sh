@@ -12,6 +12,8 @@ docker pull $DOCKER_REGISTRY/alpine/openssl:latest
 docker pull $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3
 docker pull $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0
 docker pull $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1
+docker pull $DOCKER_REGISTRY/busybox
+kind load docker-image $DOCKER_REGISTRY/busybox --name test-e2e-kubi
 
 
 kind load docker-image $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
@@ -94,9 +96,18 @@ kubectl apply -f test/e2e/conf/kubi/kube-crds.yml
 kubectl apply -f test/e2e/conf/kubi/kube-prerequisites.yml
 kubectl apply -f test/e2e/conf/kubi/black-white-list-cm.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-operator-deployment.yaml
+kubectl apply -f test/e2e/conf/kubi/kubi-api-and-auth-webhook-deployment.yaml
 kubectl apply -f test/e2e/conf/kubi/rbac.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-netpol-config.yaml
 
+# deploy busybox which will help us do some curl commands
+kubectl apply -f test/e2e/conf/busybox/pod.yaml
+
 ORG=ca-gip goreleaser release --clean --snapshot
 kind load docker-image ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi
+kind load docker-image ghcr.io/ca-gip/kubi-api:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi
+kind load docker-image ghcr.io/ca-gip/kubi-webhook:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi
+
 kubectl -n kube-system set image deployment/kubi-operator kubi-operator=ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64
+kubectl -n kube-system set image deployment/kubi-deployment api=ghcr.io/ca-gip/kubi-api:$(git rev-parse --short HEAD)-amd64
+kubectl -n kube-system set image deployment/kubi-deployment webhook=ghcr.io/ca-gip/kubi-webhook:$(git rev-parse --short HEAD)-amd64
