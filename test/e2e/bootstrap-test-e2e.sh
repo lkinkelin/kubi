@@ -99,6 +99,7 @@ kubectl apply -f test/e2e/conf/kubi/kubi-operator-deployment.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-api-and-auth-webhook-deployment.yaml
 kubectl apply -f test/e2e/conf/kubi/rbac.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-netpol-config.yaml
+kubectl apply -f test/e2e/conf/kubi/services.yaml
 
 # deploy busybox which will help us do some curl commands
 kubectl apply -f test/e2e/conf/busybox/pod.yaml
