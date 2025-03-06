@@ -59,6 +59,7 @@ var _ = BeforeSuite(func() {
 	By("Setting up E2E test environment and fixtures")
 	_ = utils.UncommentCode("config/default/kustomization.yaml", "#- ../prometheus", "#")
 
+	//TO comment when you are developping the E2E test to avoid redoing the fixtures which lasts 1m30s
 	cmd := exec.Command("./test/e2e/bootstrap-test-e2e.sh")
 	_, err := utils.Run(cmd)
 	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
