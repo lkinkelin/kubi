@@ -3,12 +3,11 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraMounts:
-    - hostPath: test/e2e/conf/kubi/authentication-webhook.yml
-      containerPath: /etc/kubernetes/additionnals/webhook.yml
+    - hostPath: $HOME/git/kubi/test/e2e/conf/kubi/
+      containerPath: /etc/kubernetes/additionals
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
     apiServer:
       extraArgs:
-        - name: authentication-token-webhook-config-file
-          value: /etc/kubernetes/additionnals/webhook.yml
+        authentication-token-webhook-config-file: /etc/kubernetes/additionals/webhook.yaml
