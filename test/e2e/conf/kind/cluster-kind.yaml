@@ -3,7 +3,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraMounts:
-    - hostPath: $HOME/git/kubi/test/e2e/conf/kubi/
+    - hostPath: test/e2e/conf/kind/apiserver
       containerPath: /etc/kubernetes/additionals
   kubeadmConfigPatches:
   - |
