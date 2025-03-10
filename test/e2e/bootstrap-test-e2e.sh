@@ -13,7 +13,10 @@ docker pull $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3
 docker pull $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0
 docker pull $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1
 docker pull $DOCKER_REGISTRY/busybox
+
 kind load docker-image $DOCKER_REGISTRY/busybox --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/bitnami/kubectl --name test-e2e-kubi
+kind load docker-image $DOCKER_REGISTRY/alpine/curl --name test-e2e-kubi
 
 
 kind load docker-image $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
@@ -52,8 +55,8 @@ cat <<EOF | cfssl genkey - | cfssljson -bare server
         "kubi-svc",
         "kubi-svc.kube-system",
         "kubi-svc.kube-system.svc",
-        "kubi-svc.kube-system.svc.cluster.local"
-  
+        "kubi-svc.kube-system.svc.cluster.local",
+        "10.96.0.2"
          ],
        "CN": "system:node:kubi-svc.kube-system.svc.cluster.local",
        "key": {
@@ -102,7 +105,7 @@ kubectl apply -f test/e2e/conf/kubi/kubi-netpol-config.yaml
 kubectl apply -f test/e2e/conf/kubi/services.yaml
 
 # deploy busybox which will help us do some curl commands
-kubectl apply -f test/e2e/conf/busybox/pod.yaml
+kubectl apply -f test/e2e/conf/busybox/
 
 ORG=ca-gip goreleaser release --clean --snapshot
 kind load docker-image ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi
