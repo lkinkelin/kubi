@@ -19,7 +19,6 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -451,25 +450,43 @@ var _ = Describe("Manager", Ordered, func() {
 	})
 
 	Context("kubi api", func() {
-		It("should generate a kubeconfig", func() {
+		It("should generate a kubeconfig which gives appropriate rights", func() {
 			By("validating that kubi api has generated a kubeconfig")
 			verifyKubeconfigFileHasBeenGenerated := func(g Gomega) {
 				// Get the name of the kubi pod
-				cmd := exec.Command("kubectl", "-n", "kube-system", "exec", "-it", "curl-pod", "--",
-					"curl", "-u", "developer1:somepass", "-X", "GET", "https://kubi-api.kube-system.svc.cluster.local:8000/config", "-k",
+				cmd := exec.Command("kubectl", "-n", "kube-system", "exec", "curl-pod", "--",
+					"curl", "-u", "developer1:somepass", "-X", "GET", "https://kubi-api.kube-system.svc.cluster.local:8000/config", "-k", "-s",
 				)
 
 				kubeconfig, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to generate kubeconfig")
 
-				// Define the file path
 				filePath := "generated-kubeconfig"
-
-				// Write the string to the file
 				err = os.WriteFile(filePath, []byte(kubeconfig), 0644)
-				if err != nil {
-					log.Fatalf("failed to write to file: %v", err)
-				}
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to save the generated kubeconfig file in local")
+
+			}
+
+			By("validating that the generated kubeconfig allows authentication of the user")
+			verifyKubeconfigFileAllowsAuthentication := func(g Gomega) {
+				// Fixture (put the kubeconfig file in the kubectl pod)
+				cmd := exec.Command("kubectl", "-n", "kube-system", "cp",
+					"generated-kubeconfig", "kubectl:/.kube/config",
+				)
+
+				output, err := utils.Run(cmd)
+				fmt.Print(output)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to copy the generated kubeconfig file to the kubectl pod")
+
+				cmd = exec.Command("kubectl", "-n", "kube-system", "exec", "kubectl", "--",
+					"kubectl", "get", "po", "-n", "projet-toto-development",
+				)
+
+				cmdOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to execute command inside kubectl test pod")
+				// Message when you present a bad token
+				// Unable to connect to the server: tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "crypto/rsa: verification error" while trying to verify candidate authority certificate "kubernetes")
+				g.Expect(cmdOutput).NotTo(ContainSubstring("failed to verify certificate", "Unable to connect to the server", "failed", "signed by unknown authority"), "Failed to authenticate the command with generated kubeconfig")
 
 				// saNames := utils.GetNonEmptyLines(generateKubeConfig)
 				// g.Expect(saNames).To(HaveLen(1), "expected 1 sa created by kubi operator")
@@ -481,8 +498,14 @@ var _ = Describe("Manager", Ordered, func() {
 				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
 				// g.Expect(saOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
 
+				// cmd := exec.Command("kubectl", "auth", "can-i", "get", "pod",
+				// 	"-n", "projet-toto-development",
+				// )
+
 			}
+
 			Eventually(verifyKubeconfigFileHasBeenGenerated).Should(Succeed())
+			Eventually(verifyKubeconfigFileAllowsAuthentication).Should(Succeed())
 		})
 	})
 
