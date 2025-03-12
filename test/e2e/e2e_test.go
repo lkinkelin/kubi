@@ -474,8 +474,7 @@ var _ = Describe("Manager", Ordered, func() {
 					"generated-kubeconfig", "kubectl:/.kube/config",
 				)
 
-				output, err := utils.Run(cmd)
-				fmt.Print(output)
+				_, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to copy the generated kubeconfig file to the kubectl pod")
 
 				cmd = exec.Command("kubectl", "-n", "kube-system", "exec", "kubectl", "--",
@@ -484,23 +483,20 @@ var _ = Describe("Manager", Ordered, func() {
 
 				cmdOutput, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred(), "Failed to execute command inside kubectl test pod")
-				// Message when you present a bad token
+				// Typical messages when you present a bad token or the API server cannot authenticate you. We verify that it does not contain such stuff.
+				// kubectl auth can-i get pod -n projet-toto-development
+				// error: You must be logged in to the server (Unauthorized)
+				// kubectl get po -n projet-toto-development
+				// error: You must be logged in to the server (Unauthorized)
 				// Unable to connect to the server: tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "crypto/rsa: verification error" while trying to verify candidate authority certificate "kubernetes")
+
+				//		g.Expect(cmdOutput).NotTo(ContainSubstring("error: You must be logged in to the server (Unauthorized)", "Unauthorized", "failed to verify certificate", "Unable to connect to the server", "failed", "signed by unknown authority"), "Failed to authenticate the command with generated kubeconfig")
+
+				g.Expect(cmdOutput).NotTo(ContainSubstring("error: You must be logged in to the server (Unauthorized)"), "Failed to authenticate the command with generated kubeconfig")
+				g.Expect(cmdOutput).NotTo(ContainSubstring("Unauthorized"), "Failed to authenticate the command with generated kubeconfig")
 				g.Expect(cmdOutput).NotTo(ContainSubstring("failed to verify certificate", "Unable to connect to the server", "failed", "signed by unknown authority"), "Failed to authenticate the command with generated kubeconfig")
-
-				// saNames := utils.GetNonEmptyLines(generateKubeConfig)
-				// g.Expect(saNames).To(HaveLen(1), "expected 1 sa created by kubi operator")
-				// controllerPodName = saNames[0]
-				// g.Expect(controllerPodName).To(Equal("service"))
-
-				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
-				// saOutput, err = utils.Run(cmd)
-				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
-				// g.Expect(saOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
-
-				// cmd := exec.Command("kubectl", "auth", "can-i", "get", "pod",
-				// 	"-n", "projet-toto-development",
-				// )
+				g.Expect(cmdOutput).NotTo(ContainSubstring("failed"), "Failed to authenticate the command with generated kubeconfig")
+				g.Expect(cmdOutput).NotTo(ContainSubstring("signed by unknown authority"), "Failed to authenticate the command with generated kubeconfig")
 
 			}
 
@@ -509,18 +505,70 @@ var _ = Describe("Manager", Ordered, func() {
 		})
 	})
 
-	Context("kubi authentication webhook and K8S RBAC", func() {
+	Context("kubi authentication webhook and K8S+Kubi RBAC", func() {
 
-		It("should authenticate a legit user and authorize a legit action", func() {
-			//Expect(differentFunction()).To(Equal(anotherExpectedValue))
-		})
+		// We already tested that the authentication webhook (called by api server : refer to scheme in https://kubernetes.io/docs/concepts/security/controlling-access/)
+		// authenticates a legit user. It's almost impossible to split the tests between kubi-api and kubi-authentication-webhook
+		// as they are highly correlated. Kubi authentication webhook determines if the token has been signed by the private CA generated.
+		// We will test if we are authenticated authorized to do some stuff, when legit, and not authorized/authenticated when non-legit.
 
-		It("should authenticate a legit user and not authorize a non-legit action", func() {
-			//Expect(differentFunction()).To(Equal(anotherExpectedValue))
-		})
+		It("should authenticate/authorize or not depending if the user is legit and if RBAC permits it", func() {
+			By("validating that legit user gets authenticated and is authorized to perform legit action")
+			verifyLegitUserGetsAuthenticatedAndIsAuthorizedWhenLegitAction := func(g Gomega) {
+				cmd := exec.Command("kubectl", "-n", "kube-system", "exec", "kubectl", "--",
+					"kubectl", "auth", "can-i", "get", "pod", "-n", "projet-toto-development",
+				)
 
-		It("should not authenticate a non-legit user and authorize a legit action", func() {
-			//Expect(differentFunction()).To(Equal(anotherExpectedValue))
+				cmdOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to execute 'kubectl auth can-i' command to determine if action possible")
+				g.Expect(cmdOutput).To(Equal("yes\n"), "Failed to validate that legit user is authorized to perform legit action")
+
+			}
+
+			By("validating that legit user gets authenticated and is not authorized to perform non-legit action")
+			verifyLegitUserGetsAuthenticatedAndIsNotAuthorizedWhenNonLegitAction := func(g Gomega) {
+				cmd := exec.Command("kubectl", "-n", "kube-system", "exec", "kubectl", "--",
+					"kubectl", "auth", "can-i", "get", "pod", "-n", "projet-titi-development",
+				)
+
+				cmdOutput, err := utils.Run(cmd)
+				g.Expect(err).To(HaveOccurred(), "The command 'kubectl auth can-i' to determine if action possible should have failed")
+				g.Expect(cmdOutput).To(Equal("no\ncommand terminated with exit code 1\n"), "Failed to validate that legit user is not authorized to perform non-legit action")
+
+			}
+
+			By("validating that legit user gets authenticated and is not authorized to perform non-legit action")
+			verifyNonLegitUserDoesNotGetAuthenticated := func(g Gomega) {
+				// Fixtures : we change the kubeconfig file to use a non-legit token
+				cmd := exec.Command("kubectl", "-n", "kube-system", "exec", "kubectl", "--",
+					"kubectl", "config", "set", "users.developer1_https://kubernetes.default.svc.cluster.local.token",
+					"eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdXRocyI6W10sInVzZXIiOiJkZXZlbG9wZXIxIiwiZW1haWwiOiIiLCJhZG1pbkFjY2VzcyI6ZmFsc2UsImFwcEFjY2VzcyI6dHJ1ZSwib3BzQWNjZXNzIjpmYWxzZSwidmlld2VyQWNjZXNzIjpmYWxzZSwic2VydmljZUFjY2VzcyI6ZmFsc2UsImxvY2F0b3IiOiJpbnRyYW5ldCIsImVuZFBvaW50Ijoia3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwidGVuYW50IjoiY2FnaXAiLCJzY29wZXMiOiIiLCJleHAiOjE3NDE4MDE5NzMsImlzcyI6Ikt1YmkgU2VydmVyIn0.ATHtSzFUsiF0k2OACGefUCvJ57t9uKKk_u7CsXbF3sCYC7h4tr6di63aiXKWi6ssp_tX4amp96a6JvKG6AwAd1f8AVsyip9WcPVjjABM6hdhT5KiLM2n9qtVHZ97IImYeZq86LDUjioOAoNO1jYHP0eRxOmV2YM84FmRRYbVwwUf12ul",
+				)
+
+				_, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to change the kubeconfig to use a non-legit token")
+
+				cmd = exec.Command("kubectl", "-n", "kube-system", "exec", "kubectl", "--",
+					"kubectl", "auth", "can-i", "get", "pod", "-n", "projet-toto-development",
+				)
+
+				cmdOutput, err := utils.Run(cmd)
+				g.Expect(err).To(HaveOccurred(), "The command 'kubectl auth can-i' to determine if action possible should have failed")
+				// Typical messages when you present a bad token or the API server cannot authenticate you. We verify that it does not contain such stuff.
+				// kubectl auth can-i get pod -n projet-toto-development
+				// error: You must be logged in to the server (Unauthorized)
+				// kubectl get po -n projet-toto-development
+				// error: You must be logged in to the server (Unauthorized)
+				// Unable to connect to the server: tls: failed to verify certificate: x509: certificate signed by unknown authority (possibly because of "crypto/rsa: verification error" while trying to verify candidate authority certificate "kubernetes")
+				g.Expect(cmdOutput).To(ContainSubstring("error: You must be logged in to the server (Unauthorized)"), "Failed to deny access to non-legit user/token")
+				g.Expect(cmdOutput).To(ContainSubstring("Unauthorized"), "Failed to deny access to non-legit user/token")
+
+			}
+
+			Eventually(verifyLegitUserGetsAuthenticatedAndIsAuthorizedWhenLegitAction).Should(Succeed())
+			Eventually(verifyLegitUserGetsAuthenticatedAndIsNotAuthorizedWhenNonLegitAction).Should(Succeed())
+			Eventually(verifyNonLegitUserDoesNotGetAuthenticated).Should(Succeed())
+
 		})
 
 	})
