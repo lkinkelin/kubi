@@ -19,6 +19,7 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -448,6 +449,59 @@ var _ = Describe("Manager", Ordered, func() {
 		//    strings.ToLower(<Kind>),
 		// ))
 	})
+
+	Context("kubi api", func() {
+		It("should generate a kubeconfig", func() {
+			By("validating that kubi api has generated a kubeconfig")
+			verifyKubeconfigFileHasBeenGenerated := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "-n", "kube-system", "exec", "-it", "curl-pod", "--",
+					"curl", "-u", "developer1:somepass", "-X", "GET", "https://kubi-api.kube-system.svc.cluster.local:8000/config", "-k",
+				)
+
+				kubeconfig, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to generate kubeconfig")
+
+				// Define the file path
+				filePath := "generated-kubeconfig"
+
+				// Write the string to the file
+				err = os.WriteFile(filePath, []byte(kubeconfig), 0644)
+				if err != nil {
+					log.Fatalf("failed to write to file: %v", err)
+				}
+
+				// saNames := utils.GetNonEmptyLines(generateKubeConfig)
+				// g.Expect(saNames).To(HaveLen(1), "expected 1 sa created by kubi operator")
+				// controllerPodName = saNames[0]
+				// g.Expect(controllerPodName).To(Equal("service"))
+
+				// cmd = exec.Command("kubectl", "get", "namespace", "projet-toto-development", "-o", "jsonpath={.metadata.labels.creator}")
+				// saOutput, err = utils.Run(cmd)
+				// g.Expect(err).NotTo(HaveOccurred(), "Failed to get namespace label creator")
+				// g.Expect(saOutput).To(Equal("kubi"), "the label creator is not equal to kubi")
+
+			}
+			Eventually(verifyKubeconfigFileHasBeenGenerated).Should(Succeed())
+		})
+	})
+
+	Context("kubi authentication webhook and K8S RBAC", func() {
+
+		It("should authenticate a legit user and authorize a legit action", func() {
+			//Expect(differentFunction()).To(Equal(anotherExpectedValue))
+		})
+
+		It("should authenticate a legit user and not authorize a non-legit action", func() {
+			//Expect(differentFunction()).To(Equal(anotherExpectedValue))
+		})
+
+		It("should not authenticate a non-legit user and authorize a legit action", func() {
+			//Expect(differentFunction()).To(Equal(anotherExpectedValue))
+		})
+
+	})
+
 })
 
 // serviceAccountToken returns a token for the specified service account in the given namespace.
