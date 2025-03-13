@@ -128,6 +128,5 @@ components-uninstall:
 
 .PHONY: test-e2e
 test-e2e: 
-	kubectl get po -n kube-system
 	go test ./test/e2e/ -v -ginkgo.v
 

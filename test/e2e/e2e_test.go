@@ -137,6 +137,11 @@ var _ = Describe("Manager", Ordered, func() {
 			verifyKubiUp := func(g Gomega) {
 				// Get the name of the kubi pod
 				cmd := exec.Command("kubectl", "get",
+					"pods", "-n", "kube-system")
+				outputDebug, err := utils.Run(cmd)
+				fmt.Print(outputDebug)
+
+				cmd = exec.Command("kubectl", "get",
 					"pods", "-l", "app=kubi-operator",
 					"-o", "go-template={{ range .items }}"+
 						"{{ if not .metadata.deletionTimestamp }}"+
