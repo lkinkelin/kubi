@@ -30,6 +30,9 @@ jobs:
       - uses: docker-practice/actions-setup-docker@master
         timeout-minutes: 12
 
+      - uses: azure/setup-helm@v4.3.0
+        id: install
+
       - name: run tests
         run: make test
 
