@@ -17,7 +17,7 @@ fi
 sudo mkdir -p "$CFSSL_DIR"
 
 # Pull CFSSL Docker image
-docker pull cloudflare/cfssl
+docker pull docker.io/cloudflare/cfssl
 
 # Run CFSSL inside a Docker container to download and store binaries in /opt/cfssl
 docker run --rm -v "$CFSSL_DIR":/cfssl cloudflare/cfssl \
