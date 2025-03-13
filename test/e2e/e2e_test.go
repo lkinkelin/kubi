@@ -140,6 +140,7 @@ var _ = Describe("Manager", Ordered, func() {
 					"pods", "-n", "kube-system")
 				outputDebug, err := utils.Run(cmd)
 				fmt.Print(outputDebug)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve Kubi operator pod information")
 
 				cmd = exec.Command("kubectl", "get",
 					"pods", "-l", "app=kubi-operator",
