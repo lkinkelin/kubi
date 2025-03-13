@@ -61,7 +61,8 @@ var _ = BeforeSuite(func() {
 
 	//TO comment when you are developping the E2E test to avoid redoing the fixtures which lasts 1m30s
 	cmd := exec.Command("./test/e2e/bootstrap-test-e2e.sh")
-	_, err := utils.Run(cmd)
+	output, err := utils.Run(cmd)
+	fmt.Print(output)
 	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
 
 	// By("Ensure that Prometheus is enabled")
