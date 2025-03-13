@@ -65,6 +65,12 @@ var _ = BeforeSuite(func() {
 	fmt.Print(output)
 	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
 
+	cmd = exec.Command("kubectl", "get", "pod", "-n", "kube-system", "-oyaml")
+	output, err = utils.Run(cmd)
+	fmt.Print(output)
+
+	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
+
 	// By("Ensure that Prometheus is enabled")
 	// _ = utils.UncommentCode("config/default/kustomization.yaml", "#- ../prometheus", "#")
 
