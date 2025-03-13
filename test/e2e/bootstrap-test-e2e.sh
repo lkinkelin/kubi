@@ -3,7 +3,7 @@
 kind delete cluster --name test-e2e-kubi
 kind create cluster --name test-e2e-kubi --config test/e2e/conf/kind/cluster-kind.yaml
 
-DOCKER_REGISTRY=docker-remote.registry.saas.cagip.group.gca
+DOCKER_REGISTRY=docker.io
 
 # PULL AND KIND LOAD IMAGES 
 docker pull $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix
