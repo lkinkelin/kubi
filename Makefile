@@ -127,9 +127,6 @@ components-uninstall:
 
 
 .PHONY: test-e2e
-test-e2e: setup-kind load-docker-image install deploy components-download components-install
-	NO_PROXY=$(NO_PROXY) no_proxy=$(NO_PROXY) VAULT_URL=http://127.0.0.1:38300 VAULT_ADDR=http://127.0.0.1:38300 \
-	INTEGRATION_TESTS=true KIND_CLUSTER_NAME=$(KIND_CLUSTER_NAME) K8S_CLUSTER_CONTEXT=$(K8S_CLUSTER_CONTEXT) CGO_ENABLED=0 \
-	K8S_VAULT_NAMESPACE=$(K8S_VAULT_NAMESPACE) \
-	go test github.com/ca-gip/vault-operator/test/e2e/... $(TESTARGS) -timeout=30m -v -count=1
+test-e2e: 
+	go test ./test/e2e/ -v -ginkgo.v
 
