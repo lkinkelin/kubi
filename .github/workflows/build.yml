@@ -42,6 +42,7 @@ jobs:
   release:
     name: release
     runs-on: ubuntu-latest
+    needs: pr-tests
     strategy:
       matrix:
         component: [webhook, api, operator]
