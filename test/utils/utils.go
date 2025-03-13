@@ -24,7 +24,7 @@ import (
 	"os/exec"
 	"strings"
 
-	//lint:ignore should not use dot imports (ST1001)
+	//lint:ignore ST1001 we cant correct that right now
 	. "github.com/onsi/ginkgo/v2" //nolint:golint,revive
 )
 
