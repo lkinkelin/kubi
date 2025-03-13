@@ -13,6 +13,9 @@ docker pull $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3
 docker pull $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0
 docker pull $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1
 docker pull $DOCKER_REGISTRY/busybox
+docker pull $DOCKER_REGISTRY/bitnami/kubectl
+
+
 
 kind load docker-image $DOCKER_REGISTRY/busybox --name test-e2e-kubi
 kind load docker-image $DOCKER_REGISTRY/bitnami/kubectl --name test-e2e-kubi
@@ -48,6 +51,8 @@ kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_pa
 ./scripts/generate_ecdsa_keys.sh
 kubectl -n kube-system create secret generic kubi-encryption-secret --from-file=/tmp/kubi/ecdsa/ecdsa-key.pem --from-file=/tmp/kubi/ecdsa/ecdsa-public.pem
 
+chmod +x install_cfssl.sh
+./install_cfssl.sh
 cat <<EOF | cfssl genkey - | cfssljson -bare server
       {
         "hosts": [
