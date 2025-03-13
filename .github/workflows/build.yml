@@ -48,6 +48,8 @@ jobs:
         component: [webhook, api, operator]
         arch: [amd64]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
