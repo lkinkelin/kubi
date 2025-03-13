@@ -51,8 +51,8 @@ kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_pa
 ./scripts/generate_ecdsa_keys.sh
 kubectl -n kube-system create secret generic kubi-encryption-secret --from-file=/tmp/kubi/ecdsa/ecdsa-key.pem --from-file=/tmp/kubi/ecdsa/ecdsa-public.pem
 
-chmod +x install_cfssl.sh
-./install_cfssl.sh
+chmod +x scripts/install_cfssl.sh
+./scripts/install_cfssl.sh
 cat <<EOF | cfssl genkey - | cfssljson -bare server
       {
         "hosts": [
