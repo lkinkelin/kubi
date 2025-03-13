@@ -51,27 +51,27 @@ jobs:
         arch: [amd64]
       steps:
       - uses: goreleaser/goreleaser-action@v6
-          with:
-            distribution: goreleaser
-            version: v2.5.0
-            args: release --snapshot --clean
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            ORG: ${{ github.REPOSITORY_OWNER }}
+        with:
+          distribution: goreleaser
+          version: v2.5.0
+          args: release --snapshot --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG: ${{ github.REPOSITORY_OWNER }}
 
-        - name: Login to container registry
-          # Pull requests are targetting ca-gip/kubi and should not push an image
-          # Only push images for the fork's repository
-          if: github.event_name != 'pull_request'
-          uses: docker/login-action@v3
-          with:
-            registry: ${{ env.REGISTRY }}
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to container registry
+        # Pull requests are targetting ca-gip/kubi and should not push an image
+        # Only push images for the fork's repository
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Push development image into ghcr (packages)
-          # Pull requests are targetting ca-gip/kubi and should not push an image
-          # Only push images for the fork's repository
-          if: github.event_name != 'pull_request'
-          run: |
-            docker push ${{ env.REGISTRY }}/${{ github.REPOSITORY_OWNER }}/kubi-${{ matrix.component }}:${{ steps.tags.outputs.sha_short }}-${{ matrix.arch }}
+      - name: Push development image into ghcr (packages)
+        # Pull requests are targetting ca-gip/kubi and should not push an image
+        # Only push images for the fork's repository
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ github.REPOSITORY_OWNER }}/kubi-${{ matrix.component }}:${{ steps.tags.outputs.sha_short }}-${{ matrix.arch }}
