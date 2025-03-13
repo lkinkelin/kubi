@@ -18,7 +18,6 @@ package e2e
 
 import (
 	"fmt"
-	"os/exec"
 	"testing"
 
 	"github.com/ca-gip/kubi/test/utils"
@@ -27,21 +26,21 @@ import (
 )
 
 var (
-	// // Optional Environment Variables:
-	// // - PROMETHEUS_INSTALL_SKIP=true: Skips Prometheus Operator installation during test setup.
-	// // - CERT_MANAGER_INSTALL_SKIP=true: Skips CertManager installation during test setup.
-	// // These variables are useful if Prometheus or CertManager is already installed, avoiding
-	// // re-installation and conflicts.
-	// skipPrometheusInstall  = os.Getenv("PROMETHEUS_INSTALL_SKIP") == "true"
-	// skipCertManagerInstall = os.Getenv("CERT_MANAGER_INSTALL_SKIP") == "true"
-	// // isPrometheusOperatorAlreadyInstalled will be set true when prometheus CRDs be found on the cluster
-	// isPrometheusOperatorAlreadyInstalled = false
-	// // isCertManagerAlreadyInstalled will be set true when CertManager CRDs be found on the cluster
-	// isCertManagerAlreadyInstalled = false
+// // Optional Environment Variables:
+// // - PROMETHEUS_INSTALL_SKIP=true: Skips Prometheus Operator installation during test setup.
+// // - CERT_MANAGER_INSTALL_SKIP=true: Skips CertManager installation during test setup.
+// // These variables are useful if Prometheus or CertManager is already installed, avoiding
+// // re-installation and conflicts.
+// skipPrometheusInstall  = os.Getenv("PROMETHEUS_INSTALL_SKIP") == "true"
+// skipCertManagerInstall = os.Getenv("CERT_MANAGER_INSTALL_SKIP") == "true"
+// // isPrometheusOperatorAlreadyInstalled will be set true when prometheus CRDs be found on the cluster
+// isPrometheusOperatorAlreadyInstalled = false
+// // isCertManagerAlreadyInstalled will be set true when CertManager CRDs be found on the cluster
+// isCertManagerAlreadyInstalled = false
 
-	// projectImage is the name of the image which will be build and loaded
-	// with the code source changes to be tested.
-	projectImage = "example.com/test-kubebuilder:v0.0.1"
+// projectImage is the name of the image which will be build and loaded
+// with the code source changes to be tested.
+// projectImage = "example.com/test-kubebuilder:v0.0.1"
 )
 
 // TestE2E runs the end-to-end (e2e) test suite for the project. These tests execute in an isolated,
@@ -60,9 +59,9 @@ var _ = BeforeSuite(func() {
 	_ = utils.UncommentCode("config/default/kustomization.yaml", "#- ../prometheus", "#")
 
 	//TO comment when you are developping the E2E test to avoid redoing the fixtures which lasts 1m30s
-	cmd := exec.Command("./test/e2e/bootstrap-test-e2e.sh")
-	_, err := utils.Run(cmd)
-	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
+	// cmd := exec.Command("./test/e2e/bootstrap-test-e2e.sh")
+	// _, err := utils.Run(cmd)
+	// ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to setting up the E2E test environment and fixtures")
 
 	// By("Ensure that Prometheus is enabled")
 	// _ = utils.UncommentCode("config/default/kustomization.yaml", "#- ../prometheus", "#")
