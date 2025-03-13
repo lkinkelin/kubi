@@ -27,7 +27,7 @@ deps:
 	go mod tidy
 
 test: bootstrap-tools
-	go test ./...
+	go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 	staticcheck ./...
 
 image: build
