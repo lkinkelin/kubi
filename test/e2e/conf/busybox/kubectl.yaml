@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
   - name: kubectl
-    image: docker-remote.registry.saas.cagip.group.gca/bitnami/kubectl
+    image: docker.io/bitnami/kubectl
     imagePullPolicy: IfNotPresent
     command: ["/bin/sh", "-c", "kubectl version && while true; do sleep 3600; done"]
   restartPolicy: Never
