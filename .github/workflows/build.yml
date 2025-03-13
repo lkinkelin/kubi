@@ -33,6 +33,11 @@ jobs:
       - uses: azure/setup-helm@v4.3.0
         id: install
 
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          install-only: true
+
       - name: run tests
         run: make test
 
