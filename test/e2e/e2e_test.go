@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+//lint:file-ignore U1000 Ignore all unused code, it's generated
+
 package e2e
 
 import (
@@ -33,18 +35,12 @@ import (
 const namespace = "kube-system"
 
 // serviceAccountName created for the project
-//
-//lint:ignore U1000 this comes from the scaffold of kubebuilder. It is not used now but could be used in the future
 const serviceAccountName = "test-kubebuilder-controller-manager"
 
 // metricsServiceName is the name of the metrics service of the project
-//
-//lint:ignore U1000 this comes from the scaffold of kubebuilder. It is not used now but could be used in the future
 const metricsServiceName = "test-kubebuilder-controller-manager-metrics-service"
 
 // metricsRoleBindingName is the name of the RBAC that will be created to allow get the metrics data
-//
-//lint:ignore U1000 this comes from the scaffold of kubebuilder. It is not used now but could be used in the future
 const metricsRoleBindingName = "test-kubebuilder-metrics-binding"
 
 var _ = Describe("Manager", Ordered, func() {
@@ -584,8 +580,6 @@ var _ = Describe("Manager", Ordered, func() {
 // serviceAccountToken returns a token for the specified service account in the given namespace.
 // It uses the Kubernetes TokenRequest API to generate a token by directly sending a request
 // and parsing the resulting token from the API response.
-//
-//lint:ignore U1000 this comes from the scaffold of kubebuilder. It is not used now but could be used in the future
 func serviceAccountToken() (string, error) {
 	const tokenRequestRawString = `{
 		"apiVersion": "authentication.k8s.io/v1",
@@ -625,8 +619,6 @@ func serviceAccountToken() (string, error) {
 }
 
 // getMetricsOutput retrieves and returns the logs from the curl pod used to access the metrics endpoint.
-//
-//lint:ignore U1000 this comes from the scaffold of kubebuilder. It is not used now but could be used in the future
 func getMetricsOutput() string {
 	By("getting the curl-metrics logs")
 	cmd := exec.Command("kubectl", "logs", "curl-metrics", "-n", namespace)
@@ -638,8 +630,6 @@ func getMetricsOutput() string {
 
 // tokenRequest is a simplified representation of the Kubernetes TokenRequest API response,
 // containing only the token field that we need to extract.
-//
-//lint:ignore U1000 this comes from the scaffold of kubebuilder. It is not used now but could be used in the future
 type tokenRequest struct {
 	Status struct {
 		Token string `json:"token"`
