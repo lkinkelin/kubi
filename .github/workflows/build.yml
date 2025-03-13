@@ -38,6 +38,9 @@ jobs:
         with:
           install-only: true
 
+      - name: install cfssl
+        run: go install github.com/cloudflare/cfssl/cmd/...@latest
+
       - name: run tests
         run: make test
 
