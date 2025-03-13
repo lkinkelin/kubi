@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        component: [webhook, api, operator]
+        component: [webhook]
         arch: [amd64]
     steps:
       - name: Checkout
