@@ -123,3 +123,4 @@ kubectl -n kube-system set image deployment/kubi-deployment webhook=ghcr.io/ca-g
 
 sleep 10
 kubectl get po -n kube-system -oyaml
+kubectl get deploy -n kube-system -oyaml
