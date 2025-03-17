@@ -120,5 +120,3 @@ kind load docker-image ghcr.io/ca-gip/kubi-webhook:$(git rev-parse --short HEAD)
 kubectl -n kube-system set image deployment/kubi-operator kubi-operator=ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64
 kubectl -n kube-system set image deployment/kubi-deployment api=ghcr.io/ca-gip/kubi-api:$(git rev-parse --short HEAD)-amd64
 kubectl -n kube-system set image deployment/kubi-deployment webhook=ghcr.io/ca-gip/kubi-webhook:$(git rev-parse --short HEAD)-amd64
-
-kubectl get deploy -n kube-system -oyaml
