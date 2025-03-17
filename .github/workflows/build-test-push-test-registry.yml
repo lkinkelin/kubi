@@ -42,7 +42,7 @@ jobs:
   push-test-registry:
     name: Push images on a test registry
     runs-on: ubuntu-latest
-    needs: build-tests
+    needs: build-test
     strategy:
       matrix:
         component: [webhook, api, operator]
