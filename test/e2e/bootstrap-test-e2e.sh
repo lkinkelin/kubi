@@ -121,6 +121,4 @@ kubectl -n kube-system set image deployment/kubi-operator kubi-operator=ghcr.io/
 kubectl -n kube-system set image deployment/kubi-deployment api=ghcr.io/ca-gip/kubi-api:$(git rev-parse --short HEAD)-amd64
 kubectl -n kube-system set image deployment/kubi-deployment webhook=ghcr.io/ca-gip/kubi-webhook:$(git rev-parse --short HEAD)-amd64
 
-sleep 10
-kubectl get po -n kube-system -oyaml
 kubectl get deploy -n kube-system -oyaml
