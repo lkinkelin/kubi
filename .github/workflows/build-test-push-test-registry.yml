@@ -41,6 +41,7 @@ jobs:
 
       - name: run E2E test
         run: make test-e2e
+        
   push-test-registry:
     name: Push images on a test registry
     runs-on: ubuntu-latest
