@@ -14,29 +14,29 @@ Kubi is the missing tool for Active Directory or LDAP driven company. It handles
 
 It manages authorization and authentication of users/admins/other profiles on K8S clusters, manages multi-tenancy, and performs a few minor side tasks.
 
-
-Kubi is composed of 4 bricks, each with its own mission. 
-3 bricks are stored in this current repo : https://github.com/ca-gip/kubi
-1 brick, the CLI, is stored is another repo: https://github.com/ca-gip/kubi-cli
-
 Disclaimer: to understand properly Kubi project, you should be familiar with authentication and authorization concepts in Kubernetes. Those docs are good starting points. 
 https://kubernetes.io/docs/concepts/security/controlling-access/
 https://kubernetes.io/docs/reference/access-authn-authz/authentication/
 
 
-Kubi components leverage the authentication webhook authentication mode, and RBAC authorization mode. 
-
 # Kubi components goals
 
-Kubi-cli: offering an client interface to contact Kubi-API
+Kubi is composed of 4 bricks, each with its own mission. Kubi components leverage the authentication webhook authentication mode, and RBAC authorization mode. 
+3 bricks are stored in this current repo : https://github.com/ca-gip/kubi
+1 brick, the CLI, is stored is another repo: https://github.com/ca-gip/kubi-cli
+
+
+**Kubi CLI** : offering an client interface to contact Kubi-API
  
-Kubi-API: delivers authentication tokens and kubeconfig files (containing the token.)
+**Kubi API**: delivers authentication tokens and kubeconfig files (containing the token.)
 
-Kubi-Authentication Webhook (which is today misnamed authorization webhook): tells the API server if a token is legitimate. Fill in the tokenReview status field with following info : is the user authenticated ? If so, which groups is he part of ? To do that, it does a request to the OpenLDAP/AD to know the groups of the user.
+**Kubi Authentication Webhook** (which is today misnamed authorization webhook): tells the API server if a token is legitimate. Fill in the tokenReview status field with following info : is the user authenticated ? If so, which groups is he part of ? To do that, it does a request to the OpenLDAP/AD to know the groups of the user.
 
-Kubi-operator: 
+**Kubi operator** : 
 - watches AD groups in a given path and create properly formatted namespaces (ServiceAccounts, RoleBindings). Clusterrole are created statically.
 - watches NetworkPolicyConfig and create netpols.
+
+## Architectural diagram
 
 
 
