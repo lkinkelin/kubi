@@ -27,20 +27,20 @@ https://kubernetes.io/docs/reference/access-authn-authz/authentication/
 
 
 **Kubi CLI**: 
-- offers an client interface to contact Kubi-API
+- offers a client interface to contact Kubi API
  
 **Kubi API**: 
-- delivers authentication tokens and kubeconfig files (containing the token.)
+- delivers authentication tokens and kubeconfig files (containing the token)
 
 **Kubi Authentication Webhook**: (which is today misnamed authorization webhook) 
 - tells the API server if a token is legitimate
 - fills in the tokenReview status field with following info : is the user authenticated ? 
 - if so, which groups is he part of ? 
-- to do that, it does a request to the OpenLDAP/AD to know the groups of the user.
+- to do that, it does a request to the OpenLDAP/AD to know the groups of the user
 
 **Kubi operator**: 
-- watches AD groups in a given path and create properly formatted namespaces (ServiceAccounts, RoleBindings). Clusterrole are created statically.
-- watches NetworkPolicyConfig and create netpols.
+- watches AD groups in a given path and create properly formatted namespaces (ServiceAccounts, RoleBindings). Clusterrole are created statically
+- watches NetworkPolicyConfig and create netpols
 
 ## Architectural diagrams
 
