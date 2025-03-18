@@ -22,7 +22,7 @@ for i in $(helm images get helm-openldap/openldap-stack-ha -f test/e2e/conf/open
 done
 
 # Create configmap containing ldif file
-kubectl -n kube-system apply -f test/e2e/conf/ldap/config.yaml
+kubectl -n kube-system apply -f test/e2e/conf/openldap/config.yaml
 helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/conf/openldap/myvalues.yaml --namespace kube-system
 # We wait 30s for Openldap to pop otherwise, Kubi tries to connect to it directly, fails to open a connection and waits for a new reconciliation loop to occur, which makes the fail test, due to 30s timeout (in e2e_test.go file.)
 sleep 30
