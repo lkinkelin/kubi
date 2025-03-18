@@ -1,4 +1,4 @@
-name: build-test-push-on-test-registry
+name: build-test-push-to-test-registry
 
 on:
   push:
