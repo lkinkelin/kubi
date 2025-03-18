@@ -1,4 +1,4 @@
-.PHONY: clean test deps build bootstrap-tools image
+.PHONY: clean test test-e2e deps build bootstrap-tools image
 
 HACKDIR=./hack/bin
 GORELEASER_CMD=$(HACKDIR)/goreleaser
@@ -31,7 +31,6 @@ test: bootstrap-tools
 
 image: build
 
-.PHONY: test-e2e
 test-e2e: 
 	go test ./test/e2e/ -v -ginkgo.v
 
