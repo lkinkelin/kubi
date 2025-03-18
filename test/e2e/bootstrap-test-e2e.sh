@@ -5,34 +5,24 @@ kind create cluster --name test-e2e-kubi --config test/e2e/conf/kind/cluster-kin
 
 DOCKER_REGISTRY=docker.io
 
-# PULL AND KIND LOAD IMAGES 
-docker pull $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix
-docker pull $DOCKER_REGISTRY/debian:latest
-docker pull $DOCKER_REGISTRY/alpine/openssl:latest
-docker pull $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3
-docker pull $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0
-docker pull $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1
-docker pull $DOCKER_REGISTRY/busybox
+# PULL AND KIND LOAD IMAGES OF HELPER PODS
 docker pull $DOCKER_REGISTRY/bitnami/kubectl
 docker pull $DOCKER_REGISTRY/alpine/curl
-
-
-
-
-kind load docker-image $DOCKER_REGISTRY/busybox --name test-e2e-kubi
 kind load docker-image $DOCKER_REGISTRY/bitnami/kubectl --name test-e2e-kubi
 kind load docker-image $DOCKER_REGISTRY/alpine/curl --name test-e2e-kubi
-kind load docker-image $DOCKER_REGISTRY/jpgouin/openldap:2.6.8-fix --name test-e2e-kubi
-kind load docker-image $DOCKER_REGISTRY/debian:latest --name test-e2e-kubi
-kind load docker-image $DOCKER_REGISTRY/alpine/openssl:latest --name test-e2e-kubi
-kind load docker-image $DOCKER_REGISTRY/tiredofit/self-service-password:5.2.3 --name test-e2e-kubi
-kind load docker-image $DOCKER_REGISTRY/osixia/phpldapadmin:0.9.0 --name test-e2e-kubi
-kind load docker-image $DOCKER_REGISTRY/cagip/kubi-operator:v1.30.0-beta1 --name test-e2e-kubi
 
-# OPENLDAP DEPLOY 
+
+# OPENLDAP PREREQUISITES AND DEPLOY 
+helm repo add helm-openldap https://jp-gouin.github.io/helm-openldap/
+
+# PULL AND KIND LOAD IMAGES OF OPENLDAP PODS
+for i in $(helm images get helm-openldap/openldap-stack-ha -f test/e2e/conf/ldap/myvalues.yaml  ); do
+    docker pull "$i"
+    kind load docker-image "$i" --name test-e2e-kubi 
+done
+
 # Create configmap containing ldif file
 kubectl -n kube-system apply -f test/e2e/conf/ldap/config.yaml
-helm repo add helm-openldap https://jp-gouin.github.io/helm-openldap/
 helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/conf/ldap/myvalues.yaml --namespace kube-system
 # We wait 30s for Openldap to pop otherwise, Kubi tries to connect to it directly, fails to open a connection and waits for a new reconciliation loop to occur, which makes the fail test, due to 30s timeout (in e2e_test.go file.)
 sleep 30
@@ -93,7 +83,7 @@ cat <<EOF | kubectl create -f -
      - server auth
 EOF
 
-# truc de resigner le cert et replace dans le CSR -> Bullshit 
+# truc de resigner le cert et replace dans le CSR -> faux 
 
 kubectl certificate approve kubi-svc.kube-system
 kubectl get csr kubi-svc.kube-system -o jsonpath='{.status.certificate}' | base64 --decode > server.crt
@@ -109,8 +99,8 @@ kubectl apply -f test/e2e/conf/kubi/rbac.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-netpol-config.yaml
 kubectl apply -f test/e2e/conf/kubi/services.yaml
 
-# deploy busybox which will help us do some curl commands
-kubectl apply -f test/e2e/conf/busybox/
+# deploy helper pods which will help us do some curl and kubectl commands
+kubectl apply -f test/e2e/conf/helper-pods/
 
 ORG=ca-gip goreleaser release --clean --snapshot
 kind load docker-image ghcr.io/ca-gip/kubi-operator:$(git rev-parse --short HEAD)-amd64 --name test-e2e-kubi
