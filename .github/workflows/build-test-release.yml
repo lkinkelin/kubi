@@ -36,6 +36,9 @@ jobs:
       - uses: azure/setup-helm@v4.3.0
         id: install
 
+      - name: Install helm plugin helm-images
+        run: helm plugin install https://github.com/nikhilsbhat/helm-images       
+
       - name: Install GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
