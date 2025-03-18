@@ -298,6 +298,28 @@ Here we use /etc/kubernetes/pki which is automatically mounted.
 ```
 
 
+## Test your code 
+The repository contains unit tests, lint tests and an E2E test, which can run in local and runs on each commit, on the CI. 
+```
+make test // executes the non-E2E tests (unit tests, linting, etc)
+make test-e2E // executes the E2E test. For it to run, some prerequisites are needed
+```
+
+Prerequisites for E2E test: 
+- in the CI, they are installed by some github actions, or by a run command. 
+- in local, dependencies today have to be managed manually. *TODO : could be nice to add them in a Makefile target*
+
+List of dependencies: 
+- kind
+- docker
+- kubectl
+- helm
+- sleep
+- cfssl
+- cfssljson
+- goreleaser
+- go
+
 <!-- omit in toc -->
 # Contributing to kubi
 
