@@ -134,7 +134,7 @@ var _ = Describe("Manager", Ordered, func() {
 	Context("Kubi operator", func() {
 		It("should run successfully", func() {
 			By("validating that the kubi operator pod is running as expected")
-			verifyKubiUp := func(g Gomega) {
+			verifyKubiOperatorUp := func(g Gomega) {
 				// Get the name of the kubi pod
 				cmd := exec.Command("kubectl", "get",
 					"pods", "-n", "kube-system")
@@ -167,7 +167,7 @@ var _ = Describe("Manager", Ordered, func() {
 				g.Expect(err).NotTo(HaveOccurred())
 				g.Expect(output).To(Equal("Running"), "Incorrect Kubi operator pod status")
 			}
-			Eventually(verifyKubiUp).Should(Succeed())
+			Eventually(verifyKubiOperatorUp).Should(Succeed())
 		})
 
 		It("should have created all appropriate objects (project, namespace, service account, rolebinding, network policies)", func() {
@@ -458,6 +458,44 @@ var _ = Describe("Manager", Ordered, func() {
 	})
 
 	Context("kubi api", func() {
+		It("kubi api and kubi authentication webhook should run successfully", func() {
+			By("validating that the kubi API + Authn webhook pod is running as expected")
+			verifyKubiAPIAndAuthnWebhookUp := func(g Gomega) {
+				// Get the name of the kubi pod
+				cmd := exec.Command("kubectl", "get",
+					"pods", "-n", "kube-system")
+				outputDebug, err := utils.Run(cmd)
+				fmt.Print(outputDebug)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve Kubi API + Authn Webhook pod information")
+
+				cmd = exec.Command("kubectl", "get",
+					"pods", "-l", "app=kubi",
+					"-o", "go-template={{ range .items }}"+
+						"{{ if not .metadata.deletionTimestamp }}"+
+						"{{ .metadata.name }}"+
+						"{{ \"\\n\" }}{{ end }}{{ end }}",
+					"-n", namespace,
+				)
+
+				podOutput, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve Kubi API + Authn Webhook pod information")
+				podNames := utils.GetNonEmptyLines(podOutput)
+				g.Expect(podNames).To(HaveLen(2), "expected 2 Kubi API + Authn Webhook pods running")
+				controllerPodName = podNames[0]
+				g.Expect(controllerPodName).To(ContainSubstring("kubi-deployment"))
+
+				// Validate the pod's status
+				cmd = exec.Command("kubectl", "get",
+					"pods", controllerPodName, "-o", "jsonpath={.status.phase}",
+					"-n", namespace,
+				)
+				output, err := utils.Run(cmd)
+				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(output).To(Equal("Running"), "Incorrect Kubi API + Authn Webhook pod status")
+			}
+			Eventually(verifyKubiAPIAndAuthnWebhookUp).Should(Succeed())
+		})
+
 		It("should generate a kubeconfig which gives appropriate rights", func() {
 			By("validating that kubi api has generated a kubeconfig")
 			verifyKubeconfigFileHasBeenGenerated := func(g Gomega) {
