@@ -21,7 +21,7 @@ https://kubernetes.io/docs/reference/access-authn-authz/authentication/
 
 # Kubi components goals
 
-Kubi is composed of 4 bricks, each with its own mission. Kubi components leverage the authentication webhook authentication mode, and RBAC authorization mode. 
+**Kubi** is composed of 4 bricks, each with its own mission. Kubi components leverage the authentication webhook authentication mode, and RBAC authorization mode. 
 3 bricks are stored in this current repo : https://github.com/ca-gip/kubi
 1 brick, the CLI, is stored is another repo: https://github.com/ca-gip/kubi-cli
 
@@ -38,10 +38,24 @@ Kubi is composed of 4 bricks, each with its own mission. Kubi components leverag
 
 ## Architectural diagrams
 
+### Kubi operator
+
 ![Kubi operator](docs/kubi-operator-diagram.png)
+
+### Kubi CLI + API 
+
 ![Kubi CLI + API](docs/kubi-cli-api-diagram.png)
+
+### Kubi authentication webhook
+
 ![Kubi authentication webhook](docs/kubi-authn-webhook-diagram.png)
+
+### Example of kubeconfig file
+
 ![Example of kubeconfig file](docs/kubi-example-kubeconfig.png)
+
+### Example of TokenReview
+
 ![Example of TokenReview](docs/kubi-example-token-review.png)
 
 
