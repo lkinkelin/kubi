@@ -27,19 +27,18 @@ helm upgrade --install openldap helm-openldap/openldap-stack-ha  -f test/e2e/con
 # We wait 30s for Openldap to pop otherwise, Kubi tries to connect to it directly, fails to open a connection and waits for a new reconciliation loop to occur, which makes the fail test, due to 30s timeout (in e2e_test.go file.)
 sleep 30
 
-# CHECK THAT OPENLDAP IS DEPLOYED AND HAS GOOD CONF
-# VERIFIER 
+# COMMAND TO CHECK THAT OPENLDAP IS DEPLOYED AND HAS GOOD CONF
 # <<<<ldapsearch -x -H ldap://openldap.kube-system.svc.cluster.local -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w Not@SecurePassw0rd>>>>
 
 # KUBI OPERATOR DEPLOY 
-kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_passwd='Not@SecurePassw0rd'
-
-
-# kubi-encryption-secret -> la PKI qui signe les tokens 
-# kubi -> je crois que c'est le cert d'authent a l'api server 
+# kubi-encryption-secret -> the PKI which signs the tokens
+# kubi -> i think it's the authn cert to api server. Unsure
 
 ./scripts/generate_ecdsa_keys.sh
 kubectl -n kube-system create secret generic kubi-encryption-secret --from-file=/tmp/kubi/ecdsa/ecdsa-key.pem --from-file=/tmp/kubi/ecdsa/ecdsa-public.pem
+kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_passwd='Not@SecurePassw0rd'
+
+
 
 # chmod +x scripts/install_cfssl.sh
 # ./scripts/install_cfssl.sh
@@ -83,12 +82,12 @@ cat <<EOF | kubectl create -f -
      - server auth
 EOF
 
-# truc de resigner le cert et replace dans le CSR -> faux 
+# resign the cert and replace in CSR as said in doc -> wrong
 
 kubectl certificate approve kubi-svc.kube-system
 kubectl get csr kubi-svc.kube-system -o jsonpath='{.status.certificate}' | base64 --decode > server.crt
 kubectl -n kube-system create secret tls kubi   --key server-key.pem   --cert server.crt
-#create le cm kubi-config avec toutes les infos sur l'AD 
+#create configmap kubi-config with all openldap info
 kubectl apply -f test/e2e/conf/kubi/configmap.yaml
 kubectl apply -f test/e2e/conf/kubi/kube-crds.yml
 kubectl apply -f test/e2e/conf/kubi/kube-prerequisites.yml
