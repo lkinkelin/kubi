@@ -94,7 +94,7 @@ kubectl apply -f test/e2e/conf/kubi/kube-crds.yml
 kubectl apply -f test/e2e/conf/kubi/kube-prerequisites.yml
 kubectl apply -f test/e2e/conf/kubi/black-white-list-cm.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-operator-deployment.yaml
-kubectl apply -f test/e2e/conf/kubi/kubi-api-and-auth-webhook-deployment.yaml
+kubectl apply -f test/e2e/conf/kubi/kubi-api-and-authn-webhook-deployment.yaml
 kubectl apply -f test/e2e/conf/kubi/rbac.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-netpol-config.yaml
 kubectl apply -f test/e2e/conf/kubi/services.yaml
