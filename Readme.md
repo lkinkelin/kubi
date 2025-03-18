@@ -45,23 +45,18 @@ https://kubernetes.io/docs/reference/access-authn-authz/authentication/
 ## Architectural diagrams
 
 ### Kubi operator
-
 ![Kubi operator](docs/kubi-operator-diagram.png)
 
 ### Kubi CLI + API 
-
 ![Kubi CLI + API](docs/kubi-cli-api-diagram.png)
 
 ### Kubi authentication webhook
-
 ![Kubi authentication webhook](docs/kubi-authn-webhook-diagram.png)
 
 ### Example of kubeconfig file
-
 ![Example of kubeconfig file](docs/kubi-example-kubeconfig.png)
 
 ### Example of TokenReview
-
 ![Example of TokenReview](docs/kubi-example-token-review.png)
 
 
