@@ -34,9 +34,10 @@ sleep 30
 # kubi-encryption-secret -> the PKI which signs the tokens
 # kubi -> i think it's the authn cert to api server. Unsure
 
+kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_passwd='Not@SecurePassw0rd'
 ./scripts/generate_ecdsa_keys.sh
 kubectl -n kube-system create secret generic kubi-encryption-secret --from-file=/tmp/kubi/ecdsa/ecdsa-key.pem --from-file=/tmp/kubi/ecdsa/ecdsa-public.pem
-kubectl -n kube-system create secret generic kubi-secret  --from-literal ldap_passwd='Not@SecurePassw0rd'
+
 
 
 
