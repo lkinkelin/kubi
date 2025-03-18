@@ -90,7 +90,7 @@ kubectl get csr kubi-svc.kube-system -o jsonpath='{.status.certificate}' | base6
 kubectl -n kube-system create secret tls kubi   --key server-key.pem   --cert server.crt
 #create configmap kubi-config with all openldap info
 kubectl apply -f test/e2e/conf/kubi/configmap.yaml
-kubectl apply -f test/e2e/conf/kubi/kube-crds.yml
+kubectl apply -f deployments/kube-crds.yml
 kubectl apply -f test/e2e/conf/kubi/kube-prerequisites.yml
 kubectl apply -f test/e2e/conf/kubi/black-white-list-cm.yaml
 kubectl apply -f test/e2e/conf/kubi/kubi-operator-deployment.yaml
