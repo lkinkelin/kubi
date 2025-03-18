@@ -36,7 +36,14 @@ Kubi is composed of 4 bricks, each with its own mission. Kubi components leverag
 - watches AD groups in a given path and create properly formatted namespaces (ServiceAccounts, RoleBindings). Clusterrole are created statically.
 - watches NetworkPolicyConfig and create netpols.
 
-## Architectural diagram
+## Architectural diagrams
+
+![Kubi operator](docs/kubi-operator-diagram.png)
+![Kubi CLI + API](docs/kubi-cli-api-diagram.png)
+![Kubi authentication webhook](docs/kubi-authn-webhook-diagram.png)
+![Example of kubeconfig file](docs/kubi-example-kubeconfig.png)
+![Example of TokenReview](docs/kubi-example-token-review.png)
+
 
 
 
