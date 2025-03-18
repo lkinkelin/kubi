@@ -44,6 +44,8 @@ https://kubernetes.io/docs/reference/access-authn-authz/authentication/
 
 ## Architectural diagrams
 
+You can modify following diagrams using the excalidraw file under `docs/` folder.
+
 ### Kubi operator
 ![Kubi operator](docs/kubi-operator-diagram.png)
 
