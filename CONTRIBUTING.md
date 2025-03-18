@@ -314,6 +314,7 @@ List of dependencies:
 - docker
 - kubectl
 - helm
+- helm plugin helm-images
 - sleep
 - cfssl
 - cfssljson
